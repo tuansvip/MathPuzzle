@@ -22,8 +22,8 @@ public class GenerateMath : MonoBehaviour
     private void Awake()
     {
         dir = Directions.right;
-        grid = new GameObject[500, 500];
-        gridModel = new string[500, 500];
+        grid = new GameObject[8, 8];
+        gridModel = new string[8, 8];
         GenerateModel();
     }
 
