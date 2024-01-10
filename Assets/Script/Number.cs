@@ -7,7 +7,7 @@ public class Number : MonoBehaviour
 {
     public int value;
     public TextMeshProUGUI textValue;
-    private void Awake()
+    private void Update()
     {
         textValue.text = value.ToString();
     }

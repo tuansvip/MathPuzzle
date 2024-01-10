@@ -15,7 +15,7 @@ public class Op : MonoBehaviour
     }
     public Operations op;
     public TextMeshProUGUI textValue;
-    private void Awake()
+    private void Update()
     {
         switch (op)
         {

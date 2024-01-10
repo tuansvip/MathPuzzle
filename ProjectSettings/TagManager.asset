@@ -6,6 +6,8 @@ TagManager:
   tags:
   - NumberCell
   - OpCell
+  - BlankCell
+  - AnswerCell
   layers:
   - Default
   - TransparentFX

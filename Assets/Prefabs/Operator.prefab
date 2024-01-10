@@ -247,7 +247,6 @@ GameObject:
   - component: {fileID: 8665970469072304324}
   - component: {fileID: 9154108853062880927}
   - component: {fileID: 3676573374123298045}
-  - component: {fileID: 7316708273685969382}
   m_Layer: 0
   m_Name: Operator
   m_TagString: OpCell
@@ -337,18 +336,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   op: 1
   textValue: {fileID: 5618888333246773547}
---- !u!114 &7316708273685969382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8883036784548748896}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 1, y: 1}
-  m_UseGraphicAlpha: 1
