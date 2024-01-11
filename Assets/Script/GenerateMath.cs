@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -16,11 +17,10 @@ public class GenerateMath : MonoBehaviour
         right
     }
     public GameObject opPrefab, numberPrefab, blankPrefab, answerPrefab;
-    GameObject[,] grid;
+    public GameObject[,] grid;
     List<GameObject> cellAnswer;
     List<GameObject> cellBlank;
-    string[,] gridModel;
-    int[,] values;
+    public string[,] gridModel;
     public int[] posX = new int[5];
     public int[] posY = new int[5];
     public Directions dir;
@@ -28,19 +28,22 @@ public class GenerateMath : MonoBehaviour
     public Transform startAnsPoint;
     public Transform spawn;
     public Transform spawnAns;
+    public Transform emptyOjs;
+    public int size;
+    public int maxRange;
+    int[,] values;
     bool up = true, down = true, left = true, right = true;
     bool canChangeDir = true;
-    public int size;
     private void Awake()
     {
         cellAnswer = new List<GameObject>();
         cellBlank = new List<GameObject>();
         dir = Directions.right;
-        grid = new GameObject[8, 8];
-        gridModel = new string[8, 8];
-        values = new int[8, 8];
+        grid = new GameObject[size, size];
+        gridModel = new string[size, size];
+        values = new int[size, size];
         GenerateModel();
-        for (int y = 7; y >= 0; y--)
+        for (int y = size - 1; y >= 0; y--)
         {
             Debug.Log(gridModel[0, y] + "\t" + gridModel[1, y] + "\t" + gridModel[2, y] + "\t" + gridModel[3, y] + "\t" + gridModel[4, y] + "\t" + gridModel[5, y] + "\t" + gridModel[6, y] + "\t" + gridModel[7, y]);
         }
@@ -48,87 +51,102 @@ public class GenerateMath : MonoBehaviour
         SuffleAnswers();
     }
 
+
+
     private void SuffleAnswers()
     {
         for (int i = 0; i < cellAnswer.Count; i++)
         {
             int ran = Random.Range(0, cellAnswer.Count);
             Vector3 temp = cellAnswer[i].transform.position;
+            Vector3 tempFs = cellAnswer[i].GetComponent<Answer>().startPosition;
+            Vector3 tempTarget = cellAnswer[i].GetComponent<Answer>().targetPosition;
             cellAnswer[i].transform.position = cellAnswer[ran].transform.position;
+            cellAnswer[i].GetComponent<Answer>().startPosition = cellAnswer[ran].GetComponent<Answer>().startPosition;
+            cellAnswer[i].GetComponent<Answer>().targetPosition = cellAnswer[ran].GetComponent<Answer>().targetPosition;
             cellAnswer[ran].transform.position = temp;
+            cellAnswer[ran].GetComponent<Answer>().startPosition = tempFs;
+            cellAnswer[ran].GetComponent<Answer>().targetPosition = tempTarget;
         }
     }
 
     private void GenerateGrid()
     {
+        Vector3 center = Vector3.zero;
         int count = 0;
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < size; i++)
         {
-            for (int j = 0; j < 8; j++)
+            for (int j = 0; j < size; j++)
             {
                 
-                Vector3 spawnPoint = new Vector3(i + startPoint.position.x, j + startPoint.position.y, 0);
+                Vector3 spawnPoint = new Vector3(i * (8f / ((float)size)) + startPoint.position.x, j * (8f / ((float)size)) + startPoint.position.y, 0);
                 switch (gridModel[i, j])
                 {
                     case "+":
-                        grid[i,j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity);
-                        grid[i, j].transform.SetParent(spawn);
+                        grid[i,j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].GetComponent<Op>().op = Op.Operations.plus;
+                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
                         break;
                     case "-":
-                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity);
-                        grid[i, j].transform.SetParent(spawn);
+                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
+                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
 
                         grid[i, j].GetComponent<Op>().op = Op.Operations.minus;
                         break;
                     case "*":
-                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity);
-                        grid[i, j].transform.SetParent(spawn);
+                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
+                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
 
                         grid[i, j].GetComponent<Op>().op = Op.Operations.multiply;
                         break;
                     case "/":
-                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity);
-                        grid[i, j].transform.SetParent(spawn);
+                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
+                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
 
                         grid[i, j].GetComponent<Op>().op = Op.Operations.divide;
                         break;
                     case "=":
-                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity);
-                        grid[i, j].transform.SetParent(spawn);
+                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
+                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
 
                         grid[i, j].GetComponent<Op>().op = Op.Operations.equal;
                         break;
                     case "empty":
                         continue;
                     case "blank":
-                        grid[i, j] = Instantiate(blankPrefab, spawnPoint, Quaternion.identity);
-                        grid[i, j].transform.SetParent(spawn);
+                        grid[i, j] = Instantiate(blankPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].GetComponent<Blank>().value = values[i, j];
-                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + count * 1.1f, startAnsPoint.position.x - count / 8 * 1.1f);
-                        GameObject cell = new GameObject("Ans" + count);
-                        cell.transform.SetParent(spawnAns);
-                        cell = Instantiate(answerPrefab, ansPoint, Quaternion.identity);
+                        grid[i, j].GetComponent<Blank>().x = i;
+                        grid[i, j].GetComponent<Blank>().y = j;
+                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+
+                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % 7) * 1.1f, startAnsPoint.position.y - count / 7 * 1.1f);
+                        GameObject cell = Instantiate(answerPrefab, ansPoint, Quaternion.identity, spawnAns);
                         cell.GetComponent<Number>().value = values[i, j];
                         cellAnswer.Add(cell);
                         cellBlank.Add(grid[i, j]);
                         count++;
                         break;
                     default:
-                        grid[i, j] = Instantiate(numberPrefab, spawnPoint, Quaternion.identity);
+                        grid[i, j] = Instantiate(numberPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].transform.SetParent(spawn);
                         grid[i, j].GetComponent<Number>().value = values[i, j];
+                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+
                         break;
                 }
+                center += grid[i, j].transform.position;
             }
         }
+        center /= spawn.childCount;
+        spawn.position += transform.position - center;
     }
 
     private void GenerateModel()
     {
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < size; i++)
         {
-            for (int j = 0; j < 8; j++)
+            for (int j = 0; j < size; j++)
             {
                 gridModel[i, j] = "empty";
             }
@@ -265,7 +283,7 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     break;
                                 case 1:
-                                    if (x + 4 > 7 || gridModel[x + 1, y] != "empty" || gridModel[x + 3, y] != "empty")
+                                    if (x + 4 > size - 1 || gridModel[x + 1, y] != "empty" || gridModel[x + 3, y] != "empty")
                                     {
                                         right = false;
                                         check = false;
@@ -337,7 +355,7 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     break;
                                 case 1:
-                                    if (y + 4 > 7 || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
+                                    if (y + 4 > size - 1 || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
                                     {
                                         check = false;
 
@@ -410,7 +428,7 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     break;
                                 case 1:
-                                    if (y + 4 > 7 || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
+                                    if (y + 4 > size - 1 || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
                                     {
                                         up = false;
                                         check = false;
@@ -449,12 +467,16 @@ public class GenerateMath : MonoBehaviour
     private void GenerateValue()
     {
 
-        gridModel[posX[1], posY[1]] = RanOp();
+        if (gridModel[posX[0], posY[0]] != "empty" && gridModel[posX[2], posY[2]] != "empty" && gridModel[posX[4], posY[4]] != "empty")
+        {
+            return;
+        }
+            gridModel[posX[1], posY[1]] = RanOp();
         gridModel[posX[3], posY[3]] = "=";
         if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
         {
-            values[posX[0], posY[0]] = Random.Range(1, 10);
-            values[posX[2], posY[2]] = Random.Range(1, 10);
+            values[posX[0], posY[0]] = Random.Range(1, maxRange);
+            values[posX[2], posY[2]] = Random.Range(1, maxRange);
             switch (gridModel[posX[1], posY[1]])
             {
                 case "+":
@@ -503,17 +525,17 @@ public class GenerateMath : MonoBehaviour
             switch (gridModel[posX[1], posY[1]])
             {
                 case "+":
-                    values[posX[2], posY[2]] = Random.Range(1, 10);
+                    values[posX[2], posY[2]] = Random.Range(1, maxRange);
                     values[posX[0], posY[0]] = (values[posX[4], posY[4]] - values[posX[2], posY[2]]);
                     break;
                 case "-":
-                    values[posX[2], posY[2]] = Random.Range(1, 10);
+                    values[posX[2], posY[2]] = Random.Range(1, maxRange);
                     values[posX[0], posY[0]] = values[posX[4], posY[4]] + values[posX[2], posY[2]];
                     break;
                 case "*":
                     do
                     {
-                        values[posX[2], posY[2]] = Random.Range(1, 10);
+                        values[posX[2], posY[2]] = Random.Range(1, maxRange);
                     } while (values[posX[4], posY[4]] % values[posX[2], posY[2]] != 0);
                     values[posX[0], posY[0]] = values[posX[4], posY[4]] / values[posX[2], posY[2]] ;
                     break;
@@ -556,17 +578,17 @@ public class GenerateMath : MonoBehaviour
             switch (gridModel[posX[1], posY[1]])
             {
                 case "+":
-                    gridModel[posX[4], posY[4]] = Random.Range(1, 10).ToString();
+                    gridModel[posX[4], posY[4]] = Random.Range(1, maxRange).ToString();
                     gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) - int.Parse(gridModel[posX[2], posY[2]])).ToString();
                     break;
                 case "-":
-                    gridModel[posX[4], posY[4]] = Random.Range(1, 10).ToString();
+                    gridModel[posX[4], posY[4]] = Random.Range(1, maxRange).ToString();
                     gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) + int.Parse(gridModel[posX[2], posY[2]])).ToString();
                     break;
                 case "*":
                     do
                     {
-                        gridModel[posX[4], posY[4]] = Random.Range(1, 10).ToString();
+                        gridModel[posX[4], posY[4]] = Random.Range(1, maxRange).ToString();
                     } while (int.Parse(gridModel[posX[4], posY[4]]) % int.Parse(gridModel[posX[2], posY[2]]) != 0);
                     gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) / int.Parse(gridModel[posX[2], posY[2]])).ToString();
                     break;
@@ -608,11 +630,11 @@ public class GenerateMath : MonoBehaviour
             switch (gridModel[posX[1], posY[1]])
             {
                 case "+":
-                    values[posX[2], posY[2]] = Random.Range(1, 10);
+                    values[posX[2], posY[2]] = Random.Range(1, maxRange);
                     values[posX[4], posY[4]] = values[posX[0], posY[0]] + values[posX[2], posY[2]];
                     break;
                 case "-":
-                    values[posX[2], posY[2]] = Random.Range(1, 10);
+                    values[posX[2], posY[2]] = Random.Range(1, maxRange);
                     values[posX[4], posY[4]] = values[posX[0], posY[0]]  - values[posX[2], posY[2]];
                     break;
                 case "*":
@@ -622,7 +644,7 @@ public class GenerateMath : MonoBehaviour
                 case "/":
                     do
                     {
-                        values[posX[2], posY[2]] = Random.Range(1, 10);
+                        values[posX[2], posY[2]] = Random.Range(1, maxRange);
                     } while (values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0);
                     values[posX[4], posY[4]] = values[posX[0], posY[0]]  / values[posX[2], posY[2]] ;
                     break;
@@ -825,6 +847,7 @@ public class GenerateMath : MonoBehaviour
                     break;
             }
         }
+
     }
 
     private string RanOp()

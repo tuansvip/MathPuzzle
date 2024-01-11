@@ -7,6 +7,6 @@ public class Blank : MonoBehaviour
 {
     public int value;
     public Color clickedColor;
-
+    public int x, y;
 }
 
