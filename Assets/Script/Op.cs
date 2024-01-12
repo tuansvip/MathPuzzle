@@ -26,10 +26,10 @@ public class Op : MonoBehaviour
                 textValue.text = "-";
                 break;
             case Operations.multiply:
-                textValue.text = "*";
+                textValue.text = "x";
                 break;
             case Operations.divide:
-                textValue.text = "/";
+                textValue.text = "÷";
                 break;
             case Operations.equal:
                 textValue.text = "=";
