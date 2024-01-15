@@ -40,17 +40,17 @@ public class GenerateMath : MonoBehaviour
     {
         switch(GameManager.instance.level)
         {
-            case GameManager.Level.Easy:
+            case GameManager.Difficult.Easy:
                 size = 11;
                 maxRange = 25;
                 maxHide = 2;
                 break;
-            case GameManager.Level.Medium:
+            case GameManager.Difficult.Medium:
                 size = 11;
                 maxRange = 50;
                 maxHide = 3;
                 break;
-            case GameManager.Level.Hard:
+            case GameManager.Difficult.Hard:
                 size = 11;
                 maxRange = 30;
                 maxHide = 3;
@@ -141,7 +141,7 @@ public class GenerateMath : MonoBehaviour
                         grid[i, j].GetComponent<Blank>().y = j;
                         grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
 
-                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % size) * (8f / ((float)size)) * 1.1f, startAnsPoint.position.y - (count / size) * 1.1f * (8f / ((float)size)) * (8f / ((float)size)));
+                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % (size - 1)) * (8f / ((float)size)) * 1.1f, startAnsPoint.position.y - (count / (size-1)) * 1.1f * (8f / ((float)size)));
                         GameObject cell = Instantiate(answerPrefab, ansPoint, Quaternion.identity, spawnAns);
                         cell.transform.localScale = Vector3.one * (8f / ((float)size));
                         cell.GetComponent<Number>().value = values[i, j];
@@ -803,6 +803,7 @@ public class GenerateMath : MonoBehaviour
                         values[posX[2], posY[2]] = values[posX[4], posY[4]] - values[posX[0], posY[0]];
                         break;
                     case "-":
+                        if (values[posX[0], posY[0]] - values[posX[4], posY[4]] < 0) continue;
                         values[posX[2], posY[2]] = values[posX[0], posY[0]] - values[posX[4], posY[4]];
                         break;
                     case "*":
@@ -926,7 +927,7 @@ public class GenerateMath : MonoBehaviour
     {
         switch (GameManager.instance.level)
         {
-            case GameManager.Level.Easy:
+            case GameManager.Difficult.Easy:
                 int op = Random.Range(0, 2);
                 switch (op)
                 {
@@ -936,7 +937,7 @@ public class GenerateMath : MonoBehaviour
                         return "-";
                 }
                 break;
-            case GameManager.Level.Medium:
+            case GameManager.Difficult.Medium:
                 op = Random.Range(0, 2);
                 switch (op)
                 {
@@ -947,7 +948,7 @@ public class GenerateMath : MonoBehaviour
 
                 }
                 break;
-            case GameManager.Level.Hard:
+            case GameManager.Difficult.Hard:
                 op = Random.Range(0, 4);
                 switch (op)
                 {

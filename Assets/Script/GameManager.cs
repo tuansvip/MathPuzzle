@@ -1,16 +1,21 @@
-﻿using System;
+﻿using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    public enum Level
+    public enum Difficult
     {
         Easy,
         Medium,
@@ -27,12 +32,14 @@ public class GameManager : MonoBehaviour
     public GameObject playHUD;
     public GameObject winPanel;
     public GameObject pausePanel;
+    public GameObject ansSpawn;
+    public GameObject spawn;
 
     [Header("#Game Component")]
     public GenerateMath playzone;
 
     [Header("#Game Data")]
-    public Level level;
+    public Difficult level;
     public float time;
     public bool isHighscore;
 
@@ -45,6 +52,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+
         isHighscore = false;
         if (instance == null)
         {
@@ -61,19 +69,20 @@ public class GameManager : MonoBehaviour
     {
         length = playzone.size;
         check = new bool[length, length];
-        for (int i = 0; i < length; i++) { 
+        for (int i = 0; i < length; i++)
+        {
             for (int j = 0; j < length; j++)
             {
                 check[i, j] = true;
-                if (playzone.grid[i,j] != null && playzone.grid[i,j].tag == "BlankCell")
+                if (playzone.grid[i, j] != null && playzone.grid[i, j].tag == "BlankCell")
                 {
                     check[i, j] = false;
                 }
             }
         }
-        for(int y = length - 1; y < 0; y--)
+        for (int y = length - 1; y < 0; y--)
         {
-                Debug.Log(check[0, y] + " " + check[1,y] + " " + check[2, y] + " " + check[3, y] + " " + check[4, y] + " " + check[5, y] + " " + check[6, y] + " " + check[7, y]);
+            Debug.Log(check[0, y] + " " + check[1, y] + " " + check[2, y] + " " + check[3, y] + " " + check[4, y] + " " + check[5, y] + " " + check[6, y] + " " + check[7, y]);
         }
 
     }
@@ -88,9 +97,10 @@ public class GameManager : MonoBehaviour
 
     private void Victory()
     {
+        SFXManager.instance.PlayWin();
         switch (level)
         {
-            case Level.Easy:
+            case Difficult.Easy:
                 if (time < playerData.easy || playerData.easy == 0)
                 {
                     Debug.Log(time);
@@ -100,7 +110,7 @@ public class GameManager : MonoBehaviour
                     SavePlayerData(playerData);
                 }
                 break;
-            case Level.Medium:
+            case Difficult.Medium:
                 if (time < playerData.medium || playerData.medium == 0)
                 {
                     isHighscore = true;
@@ -108,7 +118,7 @@ public class GameManager : MonoBehaviour
                     SavePlayerData(playerData);
                 }
                 break;
-            case Level.Hard:
+            case Difficult.Hard:
                 if (time < playerData.hard || playerData.hard == 0)
                 {
                     isHighscore = true;
@@ -143,12 +153,12 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
-            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0));
+            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
             File.WriteAllText(savePath, json);
             return JsonUtility.FromJson<PlayerData>(json);
         }
     }
-        private bool checkWin()
+    private bool checkWin()
     {
         bool win = true;
         for (int i = 0; i < length; i++)
@@ -166,17 +176,20 @@ public class GameManager : MonoBehaviour
 
     public void Home()
     {
+        SFXManager.instance.PlayClick();
         Time.timeScale = 1;
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
     }
     public void Restart()
     {
+        SFXManager.instance.PlayClick();
         Time.timeScale = 1;
         isHighscore = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     public void Pause()
     {
+        SFXManager.instance.PlayClick();
         Time.timeScale = 0;
         playzoneobj.SetActive(false);
         pool.SetActive(false);
@@ -185,26 +198,82 @@ public class GameManager : MonoBehaviour
     }
     public void Resume()
     {
+        SFXManager.instance.PlayClick();
         Time.timeScale = 1;
         playzoneobj.SetActive(true);
         pool.SetActive(true);
         playHUD.SetActive(true);
         pausePanel.SetActive(false);
     }
-    
-}
+    public void HardLevel()
+    {
+        SceneManager.LoadScene("hard");
+    }
+    public void MediumLevel()
+    {
+        SceneManager.LoadScene("medium");
+    }
+    public void EasyLevel()
+    {
+        SceneManager.LoadScene("easy");
+    }
+
+
+    public void Hint()
+    {
+        List<GameObject> listAns = new List<GameObject>();
+        for (int i = 0; i < ansSpawn.transform.childCount; i++)
+        {
+            listAns.Add(ansSpawn.transform.GetChild(i).gameObject);
+        }
+        GameObject ans = listAns[0];
+        foreach (GameObject answer in listAns)
+        {
+            if (!answer.GetComponent<Answer>().isOnBlank)
+            {
+                ans = answer;
+                break;
+            }
+        }
+        List<GameObject> listobj = playzone.GetComponent<GenerateMath>().grid.Cast<GameObject>().ToList();
+        Transform originalTransform = ans.transform;
+        Transform targerTransform = ans.transform;
+        foreach (GameObject obj in listobj)
+        {
+            if (obj != null && obj.CompareTag("BlankCell") && obj.GetComponent<Blank>().value == ans.GetComponent<Number>().value && !obj.GetComponent<Blank>().isOnAnswer)
+            {
+                targerTransform = obj.transform;
+                break;
+            }
+        }
+        Color originalColor = ans.GetComponent<Answer>().bgColor;
+        ans.GetComponent<Answer>().background.color = new Color(0.9608f, 0.4588f, 0.8824f);
+        ans.transform.DOMove(targerTransform.position, 1f);
+        ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1f);
+        StartCoroutine(ChangeColor(ans.GetComponent<Answer>(), originalColor));
+    }
+
+    private IEnumerator ChangeColor(Answer answer, Color originalColor)
+    {
+        yield return new WaitForSeconds(2f);
+        answer.background.color = originalColor;
+    }
+} 
+
 public class PlayerData
 {
     public float hard;
     public float medium;
     public float easy;
+    public int currentLevel;
+    public int unlockLevel;
 
-
-
-    public PlayerData(float hard, float medium, float easy)
+    public PlayerData(float hard, float medium, float easy, int currentLevel, int unlockLevel)
     {
         this.hard = hard;
         this.medium = medium;
         this.easy = easy;
+        this.currentLevel = currentLevel;
+        this.unlockLevel = unlockLevel;
     }
 }

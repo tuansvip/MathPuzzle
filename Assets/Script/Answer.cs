@@ -58,8 +58,6 @@ public class Answer : MonoBehaviour
     {
         targetPosition = target;
     }
-
-    //Check if on blank cell
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "BlankCell")

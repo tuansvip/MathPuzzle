@@ -148,6 +148,7 @@ MonoBehaviour:
   clickedColor: {r: 0.94926214, g: 0.9622642, b: 0.45843717, a: 1}
   x: 0
   y: 0
+  isOnAnswer: 0
 --- !u!1 &6456616927137178313
 GameObject:
   m_ObjectHideFlags: 0
