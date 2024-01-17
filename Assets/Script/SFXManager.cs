@@ -10,7 +10,7 @@ public class SFXManager : MonoBehaviour
     public AudioSource click;
     public AudioSource win;
     public AudioSource lose;
-
+    public AudioSource paper;
     private void Awake()
     {
         if (instance == null)
@@ -62,4 +62,8 @@ public class SFXManager : MonoBehaviour
     {
         lose.Play();
     }
+    public void PlayPaper()
+    {
+        paper.Play();
+    }   
 }

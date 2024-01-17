@@ -10,13 +10,13 @@ public class MenuManager : MonoBehaviour
 {
     public static MenuManager instance;
 
-    public GameObject camera, menu, level, highScore, levelBtnPrefab, lvContainer;
+    public GameObject mainCamera, menu, level, highScore, levelBtnPrefab, lvContainer;
 
     bool isChooseLevel;
     bool isChooseHighScore;
     public bool isStart;
     private string savePath;
-    PlayerData playerData;
+    public PlayerData playerData;
 
 
 
@@ -39,6 +39,7 @@ public class MenuManager : MonoBehaviour
                 btn.GetComponent<LevelBtn>().value = i;
                 btn.GetComponent<LevelBtn>().isUnlocked = true;
                 btn.GetComponentInChildren<TextMeshProUGUI>().text = i.ToString();
+                btn.name = "Level " + i;
             }
             else
             {
@@ -46,6 +47,7 @@ public class MenuManager : MonoBehaviour
                 btn.GetComponent<LevelBtn>().value = i;
                 btn.GetComponent<LevelBtn>().isUnlocked = false;
                 btn.GetComponentInChildren<TextMeshProUGUI>().text = i.ToString();
+                btn.name = "Level " + i;
             }
         }
         ResizeParent();
@@ -70,7 +72,11 @@ public class MenuManager : MonoBehaviour
             return JsonUtility.FromJson<PlayerData>(json);
         }
     }
-
+    public void SavePlayerData(PlayerData data)
+    {
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(savePath, json);
+    }
     public void Level()
     {
         SFXManager.instance.PlayClick();
@@ -95,43 +101,52 @@ public class MenuManager : MonoBehaviour
         highScore.SetActive(true);
         level.SetActive(false);
     }
-    public void LevelSelected()
+    public void PlayHighestLevel()
     {
         SFXManager.instance.PlayClick();
         isStart = true;
+        playerData.currentLevel = playerData.unlockLevel;
+        SavePlayerData(playerData);
+        StartCoroutine(StartLevel());
+    }
+    public void ContinueGame()
+    {
+        SFXManager.instance.PlayClick();
+        isStart = true;
+        StartCoroutine(StartLevel());
+    }
+    public void LevelSelected(int selectedLevel)
+    {
+        SFXManager.instance.PlayClick();
+        isStart = true;
+        playerData.currentLevel = selectedLevel;
+        SavePlayerData(playerData);
         StartCoroutine(StartLevel());
     }
 
     private IEnumerator StartLevel()
     {
         yield return new WaitForSeconds(0.5f);
-        SceneManager.LoadScene("easy");
+        SceneManager.LoadScene("sample");
 
     }    
-
-
-    private IEnumerator StartHard()
-    {
-        yield return new WaitForSeconds(0.5f);
-        SceneManager.LoadScene("hard");
-    }
 
     private void Update()
     {
         if (isChooseLevel)
         {
-            camera.transform.position = Vector3.Lerp(camera.transform.position, new Vector3(20, 0, -10), 0.1f);
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(20, 0, -10), 0.1f);
         } else if (isChooseHighScore)
         {
-            camera.transform.position = Vector3.Lerp(camera.transform.position, new Vector3(20, -20, -10), 0.1f);
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(20, -20, -10), 0.1f);
         }
         if (!isChooseLevel && !isChooseHighScore)
         {
-            camera.transform.position = Vector3.Lerp(camera.transform.position, new Vector3(20, 20, -10), 0.1f);
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(20, 20, -10), 0.1f);
         }
         if (isStart)
         {
-            camera.transform.position = Vector3.Lerp(camera.transform.position, new Vector3(0, 0, -10), 0.1f);
+            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(0, 0, -10), 0.1f);
         }
     }
 

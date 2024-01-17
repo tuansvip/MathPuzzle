@@ -145,7 +145,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 0
-  clickedColor: {r: 0.94926214, g: 0.9622642, b: 0.45843717, a: 1}
+  clickedColor: {r: 1, g: 0.6356452, b: 0.3160377, a: 1}
+  background: {fileID: 8561112889065343181}
   x: 0
   y: 0
   isOnAnswer: 0

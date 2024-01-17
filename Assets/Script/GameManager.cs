@@ -21,6 +21,9 @@ public class GameManager : MonoBehaviour
         Medium,
         Hard
     }
+    List<int> hardLevel = new List<int> { 14, 20, 26, 37, 43, 49, 56, 58, 66, 73, 88, 100 };
+    List<int> easyLevel = new List<int> { 1, 2, 3, 4, 5, 6, 7, 15, 16, 17, 27, 28, 29, 30, 31, 38, 39, 40, 44, 45, 50, 51, 52, 53, 59, 60, 61, 62, 67, 68, 69, 74, 75, 76, 77, 78, 79, 80, 89, 90, 91, 92, 93 };
+    List<int> mediumLevel = new List<int> { 8, 9, 10, 11, 12, 13, 18, 19, 21, 22, 23, 24, 25, 32, 33, 34, 35, 36, 41, 42, 46, 47, 48, 54, 55, 57, 63, 64, 65, 70, 71, 72, 81, 82, 83, 84, 85, 86, 87, 94, 95, 96, 97, 98, 99 };
 
     [Header("#Game Variable")]
     public int length;
@@ -34,60 +37,68 @@ public class GameManager : MonoBehaviour
     public GameObject pausePanel;
     public GameObject ansSpawn;
     public GameObject spawn;
+    public GameObject fireworks;
 
     [Header("#Game Component")]
     public GenerateMath playzone;
+    public PlayerData playerData;
 
     [Header("#Game Data")]
     public Difficult level;
     public float time;
     public bool isHighscore;
 
-    PlayerData playerData;
+
     float shortestTimeEasy;
     float shortestTimeMedium;
     float shortestTimeHard;
+    bool isStart = false;
     private string savePath;
 
 
     private void Awake()
     {
-
-        isHighscore = false;
         if (instance == null)
         {
             instance = this;
         }
+        isHighscore = false;
         time = 0;
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
-        Application.targetFrameRate = 144;
         playerData = LoadPlayerData();
-
-    }
-
-    private void Start()
-    {
+        Application.targetFrameRate = 144;
+        if (hardLevel.IndexOf(playerData.currentLevel) != -1)
+        {
+            level = Difficult.Hard;
+        } else if(easyLevel.IndexOf(playerData.currentLevel) != -1)
+        {
+            level = Difficult.Easy;
+        } else if(mediumLevel.IndexOf(playerData.currentLevel) != -1)
+        {
+            level = Difficult.Medium;
+        } 
+        Debug.Log("Level: " + playerData.currentLevel + ";  Difficult: " + level);
+        playzone.GetComponent<GenerateMath>().Generate(level);
         length = playzone.size;
         check = new bool[length, length];
         for (int i = 0; i < length; i++)
         {
-            for (int j = 0; j < length; j++)
+            for (int j = 0; j < length ; j++)
             {
                 check[i, j] = true;
-                if (playzone.grid[i, j] != null && playzone.grid[i, j].tag == "BlankCell")
+                if (playzone.grid[i, j] != null && playzone.grid[i, j].CompareTag("BlankCell"))
                 {
                     check[i, j] = false;
                 }
             }
         }
-        for (int y = length - 1; y < 0; y--)
-        {
-            Debug.Log(check[0, y] + " " + check[1, y] + " " + check[2, y] + " " + check[3, y] + " " + check[4, y] + " " + check[5, y] + " " + check[6, y] + " " + check[7, y]);
-        }
 
+        isStart = true;
     }
+
     private void Update()
     {
+        if (!isStart) return;
         time += Time.deltaTime;
         if (checkWin())
         {
@@ -95,7 +106,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Victory()
+    public void Victory()
     {
         SFXManager.instance.PlayWin();
         switch (level)
@@ -131,15 +142,26 @@ public class GameManager : MonoBehaviour
         playzoneobj.SetActive(false);
         pool.SetActive(false);
         playHUD.SetActive(false);
+        if (playerData.currentLevel == playerData.unlockLevel)
+        {
+            playerData.unlockLevel++;
+        }
+        SavePlayerData(playerData);
         winPanel.SetActive(true);
     }
-
+    public void NextLevel()
+    {
+        SFXManager.instance.PlayClick();
+        Time.timeScale = 1;
+        playerData.currentLevel++;
+        isHighscore = false;
+        SavePlayerData(playerData);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
     public void SavePlayerData(PlayerData data)
     {
         string json = JsonUtility.ToJson(data);
-        Debug.Log(data.easy);
         File.WriteAllText(savePath, json);
-        Debug.Log(LoadPlayerData().easy + " " + LoadPlayerData().easy + " " + LoadPlayerData().easy);
     }
 
     public PlayerData LoadPlayerData()
@@ -158,7 +180,7 @@ public class GameManager : MonoBehaviour
             return JsonUtility.FromJson<PlayerData>(json);
         }
     }
-    private bool checkWin()
+    public bool checkWin()
     {
         bool win = true;
         for (int i = 0; i < length; i++)
@@ -204,18 +226,6 @@ public class GameManager : MonoBehaviour
         pool.SetActive(true);
         playHUD.SetActive(true);
         pausePanel.SetActive(false);
-    }
-    public void HardLevel()
-    {
-        SceneManager.LoadScene("hard");
-    }
-    public void MediumLevel()
-    {
-        SceneManager.LoadScene("medium");
-    }
-    public void EasyLevel()
-    {
-        SceneManager.LoadScene("easy");
     }
 
 

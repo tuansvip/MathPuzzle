@@ -19,6 +19,8 @@ public class Answer : MonoBehaviour
     int blankValue;
     public int blankX = 0, blankY = 0;
     public Image background;
+    Collider2D anotherCol;
+    Transform blank;
 
     private void Awake()
     {
@@ -28,15 +30,20 @@ public class Answer : MonoBehaviour
     //Drag and Drop
     private void OnMouseDown()
     {
+        SFXManager.instance.PlayPaper();
         isDragging = true;
         background.color = bgColor;
+        transform.localScale = Vector3.one;
+        
     }
     private void OnMouseUp()
     {
         isDragging = false;
         if (isOnBlank && !isOnOtherAns)
         {
+            SFXManager.instance.PlayPaper();
             SetTarget(blankPosition);
+            transform.localScale = blank.localScale;
             if (transform.GetComponent<Number>().value == blankValue)
             {
                 background.color = bgColor;
@@ -46,15 +53,32 @@ public class Answer : MonoBehaviour
                 background.color = wrongColor;
             }      
         }
-        else
+        else if (isOnOtherAns && isOnBlank)
+        {
+            SFXManager.instance.PlayPaper();
+            transform.localScale = blank.localScale;
+            if (transform.GetComponent<Number>().value == blankValue)
+            {
+                background.color = bgColor;
+            }
+            else
+            {
+                background.color = wrongColor;
+            }
+            SetTarget(blankPosition);
+            anotherCol.GetComponent<Answer>().transform.localScale = Vector3.one;
+            anotherCol.GetComponent<Answer>().SetTarget(anotherCol.GetComponent<Answer>().startPosition);
+            anotherCol.GetComponent<Answer>().background.color = anotherCol.GetComponent<Answer>().bgColor;
+
+        } else if(!isOnBlank)
         {
             SetTarget(startPosition);
             background.color = bgColor;
-
+            transform.localScale = Vector3.one;
         }
     }
 
-    private void SetTarget(Vector3 target)
+    public void SetTarget(Vector3 target)
     {
         targetPosition = target;
     }
@@ -67,10 +91,12 @@ public class Answer : MonoBehaviour
             blankValue = collision.gameObject.GetComponent<Blank>().value;
             blankX = collision.gameObject.GetComponent<Blank>().x;
             blankY = collision.gameObject.GetComponent<Blank>().y;
+            blank = collision.gameObject.transform;
         }
         if (collision.gameObject.tag == "AnswerCell")
         {
             isOnOtherAns = true;
+            anotherCol = collision;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
@@ -105,10 +131,14 @@ public class Answer : MonoBehaviour
         if (isDragging)
         {
             Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-            transform.Translate(mousePosition);
+            transform.Translate(mousePosition + Vector2.up);
         }
         else
         {
+            if (targetPosition == startPosition)
+            {
+                background.color = bgColor;
+            }
             transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
         }
     }

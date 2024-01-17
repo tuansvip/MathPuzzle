@@ -13,7 +13,9 @@ public class HUDControler : MonoBehaviour
         Time,
         HighscoreEasy,
         HighscoreMedium,
-        HighscoreHard
+        HighscoreHard,
+        LevelText,
+        NewGameTxt
     }
     public HUDState state;
 
@@ -36,33 +38,42 @@ public class HUDControler : MonoBehaviour
                 GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)timer / 60, (int)timer % 60);
                 break;
             case HUDState.HighscoreEasy:
-                if (MenuManager.instance.LoadPlayerData().easy == 0)
+                if (MenuManager.instance.playerData.easy == 0)
                 {
                     GetComponent<TextMeshProUGUI>().text = "No Highscore";
                 } else
                 {
-                    GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)MenuManager.instance.LoadPlayerData().easy / 60, (int)MenuManager.instance.LoadPlayerData().easy % 60);
+                    GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)MenuManager.instance.playerData.easy / 60, (int)MenuManager.instance.playerData.easy % 60);
                 }
                 break;
             case HUDState.HighscoreMedium:
-                if (MenuManager.instance.LoadPlayerData().medium == 0)
+                if (MenuManager.instance.playerData.medium == 0)
                 {
                     GetComponent<TextMeshProUGUI>().text = "No Highscore";
                 }
                 else
                 {
-                    GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)MenuManager.instance.LoadPlayerData().medium / 60, (int)MenuManager.instance.LoadPlayerData().medium % 60);
+                    GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)MenuManager.instance.playerData.medium / 60, (int)MenuManager.instance.playerData.medium % 60);
                 }
                 break;
             case HUDState.HighscoreHard:
-                if (MenuManager.instance.LoadPlayerData().hard == 0)
+                if (MenuManager.instance.playerData.hard == 0)
                 {
                     GetComponent<TextMeshProUGUI>().text = "No Highscore";
                 }
                 else
                 {
-                    GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)MenuManager.instance.LoadPlayerData().hard / 60, (int)MenuManager.instance.LoadPlayerData().hard % 60);
+                    GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)MenuManager.instance.playerData.hard / 60, (int)MenuManager.instance.playerData.hard % 60);
                 }
+                break;
+            case HUDState.LevelText:
+                GetComponent<TextMeshProUGUI>().text = "Level " + GameManager.instance.playerData.currentLevel;
+                break;
+            case HUDState.NewGameTxt:
+                if (MenuManager.instance.playerData.currentLevel == 1 && MenuManager.instance.playerData.unlockLevel == 1 && MenuManager.instance.playerData.easy == 0 && MenuManager.instance.playerData.medium == 0 && MenuManager.instance.playerData.hard == 0)
+                {
+                    GetComponent<TextMeshProUGUI>().text =    "NEW GAME";
+                } else GetComponent<TextMeshProUGUI>().text = "CONTINUE";
                 break;
         }
     }

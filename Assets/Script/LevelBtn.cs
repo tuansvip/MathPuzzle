@@ -1,22 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelBtn : MonoBehaviour
 {
     public int value;
     public bool isUnlocked = false;
-
-    private void Awake()
+    private void Start()
     {
-        GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() =>
-        {
-            SFXManager.instance.PlayClick();
-            MenuManager.instance.isStart = true;
-            MenuManager.instance.level.SetActive(false);
-            MenuManager.instance.camera.GetComponent<Animator>().SetTrigger("Start");
-            MenuManager.instance.StartCoroutine(MenuManager.instance.LoadLevel(value));
-        });
+        GetComponent<Button>().onClick.AddListener(OnButtonClick);
     }
     private void Update()
     {
@@ -27,6 +21,11 @@ public class LevelBtn : MonoBehaviour
         else
         {
             GetComponent<UnityEngine.UI.Button>().interactable = false;
+            transform.GetChild(1).gameObject.SetActive(true);
         }
+    }
+    void OnButtonClick()
+    {
+        MenuManager.instance.LevelSelected(value);
     }
 }
