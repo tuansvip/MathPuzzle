@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
     public GameObject pausePanel;
     public GameObject ansSpawn;
     public GameObject spawn;
-    public GameObject fireworks;
+    public Blank selectedBlank = null;
 
     [Header("#Game Component")]
     public GenerateMath playzone;

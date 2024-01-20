@@ -1,4 +1,4 @@
-Library: C:\Users\Admin\Math Puzzle\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
+Library: D:\Unity\Project\Math Puzzle\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
 --platform=Android
 --backend=burst-llvm-15
 --target=ARMV7A_NEON32
@@ -22,15 +22,20 @@ Library: C:\Users\Admin\Math Puzzle\Temp\BurstOutput\tempburstlibs\armeabi-v7a\l
 --assembly-defines=Unity.Burst.Unsafe;
 --assembly-defines=Unity.Collections;
 --assembly-defines=Unity.Collections.LowLevel.ILSupport;
+--assembly-defines=Unity.InputSystem;
+--assembly-defines=Unity.InputSystem.ForUI;
 --assembly-defines=Unity.InternalAPIEngineBridge.001;
 --assembly-defines=Unity.Mathematics;
+--assembly-defines=Unity.RenderPipelines.Core.Runtime;
 --assembly-defines=Unity.TextMeshPro;
+--assembly-defines=Unity.Timeline;
+--assembly-defines=Unity.VisualEffectGraph.Runtime;
 --assembly-defines=UnityEngine;
 --generate-link-xml=Temp\burst.link.xml
---temp-folder=C:\Users\Admin\Math Puzzle\Temp\Burst
+--temp-folder=D:\Unity\Project\Math Puzzle\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.16f1/Editor/Data/PlaybackEngines/AndroidPlayer
---decode-folder=C:\Users\Admin\Math Puzzle\Library\Burst
---output=C:\Users\Admin\Math Puzzle\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
+--decode-folder=D:\Unity\Project\Math Puzzle\Library\Burst
+--output=D:\Unity\Project\Math Puzzle\Temp\BurstOutput\tempburstlibs\armeabi-v7a\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
 
 --method=Unity.Burst.BurstCompiler+BurstCompilerHelper, Unity.Burst, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null::IsBurstEnabled()--8c2be93e18276203cbd918daa2748a10

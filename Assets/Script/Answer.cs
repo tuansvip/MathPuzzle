@@ -30,18 +30,38 @@ public class Answer : MonoBehaviour
     //Drag and Drop
     private void OnMouseDown()
     {
-        SFXManager.instance.PlayPaper();
-        isDragging = true;
-        background.color = bgColor;
-        transform.localScale = Vector3.one;
+        if (GameManager.instance.selectedBlank != null)
+        {
+            SFXManager.instance.PlayPaper();
+            SetTarget(GameManager.instance.selectedBlank.transform.position);
+            transform.position = GameManager.instance.selectedBlank.transform.position;
+            transform.localScale = GameManager.instance.selectedBlank.transform.localScale;
+            if (transform.GetComponent<Number>().value == GameManager.instance.selectedBlank.value)
+            {
+                background.color = bgColor;
+            }
+            else
+            {
+                background.color = wrongColor;
+            }
+            GameManager.instance.selectedBlank.GetComponent<Blank>().bg.color = Color.white;
+            GameManager.instance.selectedBlank.GetComponent<Blank>().isSelected = false;
+            GameManager.instance.selectedBlank = null;
+        }
+        else
+        {
+
+            isDragging = true;
+            background.color = bgColor;
+            transform.localScale = Vector3.one;
+        }
         
     }
     private void OnMouseUp()
     {
-        isDragging = false;
         if (isOnBlank && !isOnOtherAns)
         {
-            SFXManager.instance.PlayPaper();
+            if (isDragging) SFXManager.instance.PlayPaper();
             SetTarget(blankPosition);
             transform.localScale = blank.localScale;
             if (transform.GetComponent<Number>().value == blankValue)
@@ -55,7 +75,7 @@ public class Answer : MonoBehaviour
         }
         else if (isOnOtherAns && isOnBlank)
         {
-            SFXManager.instance.PlayPaper();
+            if (isDragging) SFXManager.instance.PlayPaper();
             transform.localScale = blank.localScale;
             if (transform.GetComponent<Number>().value == blankValue)
             {
@@ -72,15 +92,18 @@ public class Answer : MonoBehaviour
 
         } else if(!isOnBlank)
         {
-            SetTarget(startPosition);
+            SetTarget(startPosition + Vector3.back);
             background.color = bgColor;
             transform.localScale = Vector3.one;
         }
+        isDragging = false;
+
     }
 
     public void SetTarget(Vector3 target)
     {
         targetPosition = target;
+        targetPosition.z = -1;
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {

@@ -764,7 +764,7 @@ MonoBehaviour:
   pausePanel: {fileID: 1012344711}
   ansSpawn: {fileID: 826758690}
   spawn: {fileID: 329990273}
-  fireworks: {fileID: 0}
+  selectedBlank: {fileID: 0}
   playzone: {fileID: 1449705057}
   level: 2
   time: 0

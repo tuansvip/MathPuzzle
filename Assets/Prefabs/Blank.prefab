@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -2
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0.9245283, g: 0.9245283, b: 0.9245283, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -116,10 +116,10 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.020137906, y: -0.014919817}
+  m_Offset: {x: -0.0016546547, y: 0.0037594438}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -130,7 +130,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.16429484, y: 0.16429532}
+  m_Size: {x: 0.90524024, y: 0.9114672}
   m_EdgeRadius: 0
 --- !u!114 &-1468773785582139351
 MonoBehaviour:
@@ -146,10 +146,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   value: 0
   clickedColor: {r: 1, g: 0.6356452, b: 0.3160377, a: 1}
-  background: {fileID: 8561112889065343181}
+  bg: {fileID: 8561112889065343181}
   x: 0
   y: 0
   isOnAnswer: 0
+  isSelected: 0
 --- !u!1 &6456616927137178313
 GameObject:
   m_ObjectHideFlags: 0
