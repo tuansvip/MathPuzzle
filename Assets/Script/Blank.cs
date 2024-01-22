@@ -13,6 +13,7 @@ public class Blank : MonoBehaviour
     public int x, y;
     public bool isOnAnswer;
     public bool isSelected = false;
+    public bool isFilled = false;
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.CompareTag("AnswerCell"))

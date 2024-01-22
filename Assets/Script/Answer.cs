@@ -50,7 +50,6 @@ public class Answer : MonoBehaviour
         }
         else
         {
-
             isDragging = true;
             background.color = bgColor;
             transform.localScale = Vector3.one;
@@ -59,7 +58,8 @@ public class Answer : MonoBehaviour
     }
     private void OnMouseUp()
     {
-        if (isOnBlank && !isOnOtherAns)
+        transform.position = transform.position + Vector3.back * -5;
+        if (!isOnOtherAns && isOnBlank)
         {
             if (isDragging) SFXManager.instance.PlayPaper();
             SetTarget(blankPosition);
@@ -141,10 +141,16 @@ public class Answer : MonoBehaviour
         if (collision.transform.tag == "BlankCell")
         {
             isOnBlank = true;
+            
             if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isDragging)
             {
                 GameManager.instance.check[blankX, blankY] = true;
             }
+
+        }
+        if (collision.CompareTag("AnswerCell"))
+        {
+            isOnOtherAns = true;
         }
     }
 
@@ -153,8 +159,9 @@ public class Answer : MonoBehaviour
     {
         if (isDragging)
         {
-            Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-            transform.Translate(mousePosition + Vector2.up);
+            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePosition.z = -6;
+            transform.position =  mousePosition + Vector3.up;
         }
         else
         {
