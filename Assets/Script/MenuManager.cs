@@ -17,7 +17,8 @@ public class MenuManager : MonoBehaviour
     public bool isStart;
     private string savePath;
     public PlayerData playerData;
-
+    string encryptKey = "iamnupermane4133bbce2ea2315a1916";
+                         
 
 
 
@@ -56,26 +57,40 @@ public class MenuManager : MonoBehaviour
     {
         lvContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(lvContainer.GetComponent<RectTransform>().sizeDelta.x, 20 + (0.5f*20));
     }
+    public void SavePlayerData(PlayerData data)
+    {
+        string json = JsonUtility.ToJson(data);
+        json = Encryption.EncryptString(encryptKey, json);
+        File.WriteAllText(savePath, json);
+    }
+
     public PlayerData LoadPlayerData()
     {
         if (File.Exists(savePath))
         {
             Debug.Log("Save file found!");
             string json = File.ReadAllText(savePath);
+            json = Encryption.DecryptString(encryptKey, json);
+            if (JsonUtility.FromJson<PlayerData>(json) == null)
+            {
+                Debug.LogWarning("Save file incorrect, creating a new one!");
+                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+                json2 = Encryption.EncryptString(encryptKey, json2);
+                File.WriteAllText(savePath, json2);
+                json2 = Encryption.DecryptString(encryptKey, json2);
+                return JsonUtility.FromJson<PlayerData>(json2);
+            }
             return JsonUtility.FromJson<PlayerData>(json);
         }
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
             string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+            json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
+            json = Encryption.DecryptString(encryptKey, json);
             return JsonUtility.FromJson<PlayerData>(json);
         }
-    }
-    public void SavePlayerData(PlayerData data)
-    {
-        string json = JsonUtility.ToJson(data);
-        File.WriteAllText(savePath, json);
     }
     public void Level()
     {

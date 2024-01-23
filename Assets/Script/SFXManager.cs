@@ -57,10 +57,13 @@ public class SFXManager : MonoBehaviour
     public void PlayWin()
     {
         win.Play();
+        Debug.Log("Win");
+
     }
     public void PlayLose()
     {
         lose.Play();
+        Debug.Log("lose");
     }
     public void PlayPaper()
     {

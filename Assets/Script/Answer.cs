@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ public class Answer : MonoBehaviour
             SFXManager.instance.PlayPaper();
             SetTarget(GameManager.instance.selectedBlank.transform.position);
             transform.position = GameManager.instance.selectedBlank.transform.position;
-            transform.localScale = GameManager.instance.selectedBlank.transform.localScale;
+            transform.DOScale(GameManager.instance.selectedBlank.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
             if (transform.GetComponent<Number>().value == GameManager.instance.selectedBlank.value)
             {
                 background.color = bgColor;
@@ -52,9 +53,10 @@ public class Answer : MonoBehaviour
         {
             isDragging = true;
             background.color = bgColor;
-            transform.localScale = Vector3.one;
+            transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
+
         }
-        
+
     }
     private void OnMouseUp()
     {
@@ -63,26 +65,28 @@ public class Answer : MonoBehaviour
         {
             if (isDragging) SFXManager.instance.PlayPaper();
             SetTarget(blankPosition);
-            transform.localScale = blank.localScale;
+            transform.DOScale(blank.localScale, 0.5f).SetEase(Ease.OutQuart);
             if (transform.GetComponent<Number>().value == blankValue)
             {
                 background.color = bgColor;
             }
             else
             {
+                GameManager.instance.lives--;
                 background.color = wrongColor;
             }      
         }
         else if (isOnOtherAns && isOnBlank)
         {
             if (isDragging) SFXManager.instance.PlayPaper();
-            transform.localScale = blank.localScale;
+            transform.DOScale(blank.localScale, 0.5f).SetEase(Ease.OutQuart);
             if (transform.GetComponent<Number>().value == blankValue)
             {
                 background.color = bgColor;
             }
             else
             {
+                GameManager.instance.lives--;
                 background.color = wrongColor;
             }
             SetTarget(blankPosition);
@@ -141,10 +145,15 @@ public class Answer : MonoBehaviour
         if (collision.transform.tag == "BlankCell")
         {
             isOnBlank = true;
-            
+            blankPosition = collision.gameObject.transform.position;
+            blankValue = collision.gameObject.GetComponent<Blank>().value;
+            blankX = collision.gameObject.GetComponent<Blank>().x;
+            blankY = collision.gameObject.GetComponent<Blank>().y;
+            blank = collision.gameObject.transform;
             if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isDragging)
             {
                 GameManager.instance.check[blankX, blankY] = true;
+
             }
 
         }

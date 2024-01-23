@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     public GameObject pausePanel;
     public GameObject ansSpawn;
     public GameObject spawn;
+    public GameObject losePanel;
     public Blank selectedBlank = null;
 
     [Header("#Game Component")]
@@ -47,6 +48,7 @@ public class GameManager : MonoBehaviour
     public Difficult level;
     public float time;
     public bool isHighscore;
+    public int lives = 3;
 
 
     float shortestTimeEasy;
@@ -54,10 +56,11 @@ public class GameManager : MonoBehaviour
     float shortestTimeHard;
     bool isStart = false;
     private string savePath;
-
+    string encryptKey = "iamnupermane4133bbce2ea2315a1916";
 
     private void Awake()
     {
+        Debug.Log(Time.timeScale);
         if (instance == null)
         {
             instance = this;
@@ -104,11 +107,29 @@ public class GameManager : MonoBehaviour
         {
             Victory();
         }
+        if (lives <= 0)
+        {
+            Defeat();
+        }
+    }
+
+
+
+    private void Defeat()
+    {
+        SFXManager.instance.PlayLose();
+        isStart = false;
+        Time.timeScale = 0;
+        playzoneobj.SetActive(false);
+        pool.SetActive(false);
+        playHUD.SetActive(false);
+        losePanel.SetActive(true);
     }
 
     public void Victory()
     {
         SFXManager.instance.PlayWin();
+        isStart = false;
         switch (level)
         {
             case Difficult.Easy:
@@ -161,6 +182,7 @@ public class GameManager : MonoBehaviour
     public void SavePlayerData(PlayerData data)
     {
         string json = JsonUtility.ToJson(data);
+        json = Encryption.EncryptString(encryptKey, json);
         File.WriteAllText(savePath, json);
     }
 
@@ -170,13 +192,25 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Save file found!");
             string json = File.ReadAllText(savePath);
+            json = Encryption.DecryptString(encryptKey, json);
+            if (JsonUtility.FromJson<PlayerData>(json) == null)
+            {
+                Debug.LogWarning("Save file incorrect, creating a new one!");
+                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+                json2 = Encryption.EncryptString(encryptKey, json2);
+                File.WriteAllText(savePath, json2);
+                json2 = Encryption.DecryptString(encryptKey, json2);
+                return JsonUtility.FromJson<PlayerData>(json2);
+            }
             return JsonUtility.FromJson<PlayerData>(json);
         }
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
             string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+            json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
+            json = Encryption.DecryptString(encryptKey, json);
             return JsonUtility.FromJson<PlayerData>(json);
         }
     }
