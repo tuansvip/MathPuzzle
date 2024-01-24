@@ -38,6 +38,8 @@ public class GameManager : MonoBehaviour
     public GameObject ansSpawn;
     public GameObject spawn;
     public GameObject losePanel;
+    public GameObject musicToggle;
+    public GameObject soundToggle;
     public Blank selectedBlank = null;
 
     [Header("#Game Component")]
@@ -68,7 +70,9 @@ public class GameManager : MonoBehaviour
         isHighscore = false;
         time = 0;
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
-        playerData = LoadPlayerData();
+        playerData = LoadPlayerData(); 
+        soundToggle.GetComponent<ToggleSwitch>().isOn = playerData.isSoundOn;
+        musicToggle.GetComponent<ToggleSwitch>().isOn = playerData.isMusicOn;
         Application.targetFrameRate = 144;
         if (hardLevel.IndexOf(playerData.currentLevel) != -1)
         {
@@ -196,7 +200,7 @@ public class GameManager : MonoBehaviour
             if (JsonUtility.FromJson<PlayerData>(json) == null)
             {
                 Debug.LogWarning("Save file incorrect, creating a new one!");
-                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
                 json2 = Encryption.EncryptString(encryptKey, json2);
                 File.WriteAllText(savePath, json2);
                 json2 = Encryption.DecryptString(encryptKey, json2);
@@ -207,7 +211,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
-            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
             json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
             json = Encryption.DecryptString(encryptKey, json);
@@ -262,7 +266,12 @@ public class GameManager : MonoBehaviour
         pausePanel.SetActive(false);
     }
 
-
+    public void SaveSetting()
+    {
+        playerData.isSoundOn = soundToggle.GetComponent<ToggleSwitch>().isOn;
+        playerData.isMusicOn = musicToggle.GetComponent<ToggleSwitch>().isOn;
+        SavePlayerData(playerData);
+    }
     public void Hint()
     {
         List<GameObject> listAns = new List<GameObject>();
@@ -311,13 +320,17 @@ public class PlayerData
     public float easy;
     public int currentLevel;
     public int unlockLevel;
+    public bool isMusicOn;
+    public bool isSoundOn;
 
-    public PlayerData(float hard, float medium, float easy, int currentLevel, int unlockLevel)
+    public PlayerData(float hard, float medium, float easy, int currentLevel, int unlockLevel, bool isMusicOn, bool isSoundOn)
     {
         this.hard = hard;
         this.medium = medium;
         this.easy = easy;
         this.currentLevel = currentLevel;
         this.unlockLevel = unlockLevel;
+        this.isMusicOn = isMusicOn;
+        this.isSoundOn = isSoundOn;
     }
 }

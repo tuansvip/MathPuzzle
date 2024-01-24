@@ -38,6 +38,7 @@ public class SFXManager : MonoBehaviour
         click.mute = true;
         win.mute = true;
         lose.mute = true;
+        paper.mute = true;
     }
     public void UnmuteSfx()
     {
@@ -45,6 +46,7 @@ public class SFXManager : MonoBehaviour
         click.mute = false;
         win.mute = false;
         lose.mute = false;
+        paper.mute = false;
     }
     public void PlayPick()
     {

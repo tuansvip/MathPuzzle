@@ -5,6 +5,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static ToggleSwitch;
 
 public class MenuManager : MonoBehaviour
 {
@@ -31,7 +32,22 @@ public class MenuManager : MonoBehaviour
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         Application.targetFrameRate = 144;
         playerData = LoadPlayerData();
-
+        if (playerData.isMusicOn)
+        {
+            SFXManager.instance.UnmuteMusic();
+        }
+        else
+        {
+            SFXManager.instance.MuteMusic();
+        }
+        if  (playerData.isSoundOn)
+        {
+            SFXManager.instance.UnmuteSfx();
+        }
+        else
+        {
+            SFXManager.instance.MuteSfx();
+        }
         for (int  i = 1;  i <= 100;  i++)
         {
             if (LoadPlayerData().unlockLevel >= i)
@@ -74,7 +90,7 @@ public class MenuManager : MonoBehaviour
             if (JsonUtility.FromJson<PlayerData>(json) == null)
             {
                 Debug.LogWarning("Save file incorrect, creating a new one!");
-                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
                 json2 = Encryption.EncryptString(encryptKey, json2);
                 File.WriteAllText(savePath, json2);
                 json2 = Encryption.DecryptString(encryptKey, json2);
@@ -85,7 +101,7 @@ public class MenuManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
-            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1));
+            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
             json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
             json = Encryption.DecryptString(encryptKey, json);
