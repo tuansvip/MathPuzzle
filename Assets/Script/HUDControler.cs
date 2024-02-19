@@ -9,13 +9,14 @@ public class HUDControler : MonoBehaviour
     public enum HUDState
     {
         Win,
-        Highscorealert,
         Time,
         HighscoreEasy,
         HighscoreMedium,
         HighscoreHard,
         LevelText,
-        NewGameTxt
+        NewGameTxt,
+        Heart
+
     }
     public HUDState state;
 
@@ -26,12 +27,6 @@ public class HUDControler : MonoBehaviour
             case HUDState.Win:
                 float highesttimer = GameManager.instance.time;
                 GetComponent<TextMeshProUGUI>().text = string.Format("{0}:{1:00}", (int)highesttimer / 60, (int)highesttimer % 60);
-                break;
-            case HUDState.Highscorealert:
-                if (GameManager.instance.isHighscore)
-                {
-                    GetComponent<TextMeshProUGUI>().text = "New High Score";
-                } else GetComponent<TextMeshProUGUI>().text = "";
                 break;
             case HUDState.Time:
                 float timer = GameManager.instance.time;
@@ -74,6 +69,29 @@ public class HUDControler : MonoBehaviour
                 {
                     GetComponent<TextMeshProUGUI>().text =    "NEW GAME";
                 } else GetComponent<TextMeshProUGUI>().text = "CONTINUE";
+                break;
+            case HUDState.Heart:
+                if (GameManager.instance.lives == 3)
+                {
+                    transform.GetChild(0).gameObject.SetActive(true);
+                    transform.GetChild(1).gameObject.SetActive(true);
+                    transform.GetChild(2).gameObject.SetActive(true);
+                } else if (GameManager.instance.lives == 2)
+                {
+                    transform.GetChild(0).gameObject.SetActive(true);
+                    transform.GetChild(1).gameObject.SetActive(true);
+                    transform.GetChild(2).gameObject.SetActive(false);
+                } else if (GameManager.instance.lives == 1)
+                {
+                    transform.GetChild(0).gameObject.SetActive(true);
+                    transform.GetChild(1).gameObject.SetActive(false);
+                    transform.GetChild(2).gameObject.SetActive(false);
+                } else if (GameManager.instance.lives == 0)
+                {
+                    transform.GetChild(0).gameObject.SetActive(false);
+                    transform.GetChild(1).gameObject.SetActive(false);
+                    transform.GetChild(2).gameObject.SetActive(false);
+                }
                 break;
         }
     }

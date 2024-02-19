@@ -13,6 +13,7 @@ public class MenuManager : MonoBehaviour
 
     public GameObject mainCamera, menu, level, highScore, levelBtnPrefab, lvContainer;
 
+    public int maxLevel = 300;
     bool isChooseLevel;
     bool isChooseHighScore;
     public bool isStart;
@@ -32,23 +33,8 @@ public class MenuManager : MonoBehaviour
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         Application.targetFrameRate = 144;
         playerData = LoadPlayerData();
-        if (playerData.isMusicOn)
-        {
-            SFXManager.instance.UnmuteMusic();
-        }
-        else
-        {
-            SFXManager.instance.MuteMusic();
-        }
-        if  (playerData.isSoundOn)
-        {
-            SFXManager.instance.UnmuteSfx();
-        }
-        else
-        {
-            SFXManager.instance.MuteSfx();
-        }
-        for (int  i = 1;  i <= 100;  i++)
+
+        for (int  i = 1;  i <= maxLevel;  i++)
         {
             if (LoadPlayerData().unlockLevel >= i)
             {
@@ -69,9 +55,28 @@ public class MenuManager : MonoBehaviour
         }
         ResizeParent();
     }
+    private void Start()
+    {
+        if (playerData.isMusicOn)
+        {
+            SFXManager.instance.UnmuteMusic();
+        }
+        else
+        {
+            SFXManager.instance.MuteMusic();
+        }
+        if (playerData.isSoundOn)
+        {
+            SFXManager.instance.UnmuteSfx();
+        }
+        else
+        {
+            SFXManager.instance.MuteSfx();
+        }
+    }
     void ResizeParent()
     {
-        lvContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(lvContainer.GetComponent<RectTransform>().sizeDelta.x, 20 + (0.5f*20));
+        lvContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(lvContainer.GetComponent<RectTransform>().sizeDelta.x, (maxLevel/5f) + (0.5f* (maxLevel / 5f)));
     }
     public void SavePlayerData(PlayerData data)
     {
@@ -84,7 +89,6 @@ public class MenuManager : MonoBehaviour
     {
         if (File.Exists(savePath))
         {
-            Debug.Log("Save file found!");
             string json = File.ReadAllText(savePath);
             json = Encryption.DecryptString(encryptKey, json);
             if (JsonUtility.FromJson<PlayerData>(json) == null)
@@ -136,7 +140,10 @@ public class MenuManager : MonoBehaviour
     {
         SFXManager.instance.PlayClick();
         isStart = true;
-        playerData.currentLevel = playerData.unlockLevel;
+        if (playerData.unlockLevel > maxLevel)
+        {
+            playerData.currentLevel = playerData.unlockLevel - 1;
+        } else playerData.currentLevel = playerData.unlockLevel;
         SavePlayerData(playerData);
         StartCoroutine(StartLevel());
     }

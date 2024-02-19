@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -32,6 +32,7 @@ public class GenerateMath : MonoBehaviour
     public Transform startAnsPoint;
     public Transform spawn;
     public Transform spawnAns;
+    public Transform spawnParent;
     public int size;
     public int maxRange;
     public int maxValue;
@@ -45,7 +46,7 @@ public class GenerateMath : MonoBehaviour
         switch (level)
         {
             case GameManager.Difficult.Easy:
-                size = 11;
+                size = 8;
                 maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
                 maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
                 maxHide = 2;
@@ -99,36 +100,36 @@ public class GenerateMath : MonoBehaviour
         {
             for (int j = 0; j < size; j++)
             {
-                Vector3 spawnPoint = new Vector3(i * (8f / ((float)size)) + startPoint.position.x, j * (8f / ((float)size)) + startPoint.position.y, 0);
+                Vector3 spawnPoint = new Vector3(i  + startPoint.position.x, j + startPoint.position.y, 0);
                 switch (gridModel[i, j])
                 {
                     case "+":
                         grid[i,j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].GetComponent<Op>().op = Op.Operations.plus;
-                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-                        break;
+/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+*/                        break;
                     case "-":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-
+/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+*/
                         grid[i, j].GetComponent<Op>().op = Op.Operations.minus;
                         break;
                     case "*":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-
+/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+*/
                         grid[i, j].GetComponent<Op>().op = Op.Operations.multiply;
                         break;
                     case "/":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-
+/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+*/
                         grid[i, j].GetComponent<Op>().op = Op.Operations.divide;
                         break;
                     case "=":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-
+/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+*/
                         grid[i, j].GetComponent<Op>().op = Op.Operations.equal;
                         break;
                     case "empty":
@@ -138,8 +139,8 @@ public class GenerateMath : MonoBehaviour
                         grid[i, j].GetComponent<Blank>().value = values[i, j];
                         grid[i, j].GetComponent<Blank>().x = i;
                         grid[i, j].GetComponent<Blank>().y = j;
-                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-                        cellBlank.Add(grid[i, j]);
+/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+*/                        cellBlank.Add(grid[i, j]);
                         
 
                         Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % 7) * 1.1f, startAnsPoint.position.y - (count / 7) * 1.1f);
@@ -153,8 +154,8 @@ public class GenerateMath : MonoBehaviour
                         grid[i, j] = Instantiate(numberPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].transform.SetParent(spawn);
                         grid[i, j].GetComponent<Number>().value = values[i, j];
-                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-
+/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+*/
                         break;
                 }
                 if (grid[i,j].transform.position.x > maxX)
@@ -178,6 +179,14 @@ public class GenerateMath : MonoBehaviour
         center = new Vector3((maxX + minX)  / 2f, (maxY + minY) / 2f, 0);
         
         spawn.position += transform.position -  center;
+        if (maxX - minX <= maxY - minY)
+        {
+            spawnParent.localScale = Vector3.one * (8f / (maxY - minY + 1));
+        }
+        else
+        {
+            spawnParent.localScale = Vector3.one * (8f / (maxX - minX + 1));
+        }
     }
     public void GenerateModel()
     {
@@ -188,7 +197,11 @@ public class GenerateMath : MonoBehaviour
                 gridModel[i, j] = "empty";
             }
         }
-        int x = 0, y = 0;
+        int x, y;
+        do
+        {
+            x = 0; y = Random.Range(0,size);
+        } while (y % 2 != 0);
 
         //generate model
         do 
@@ -229,11 +242,21 @@ public class GenerateMath : MonoBehaviour
                             switch (ranDir)
                             {
                                 case 0:
-                                    if (x - 4 < 0 || gridModel[x - 1, y] != "empty" || gridModel[x - 3, y] != "empty")
+                                    if (x - 4 < 0 || gridModel[x - 1, y] != "empty" || gridModel[x - 3, y] != "empty" )
                                     {
                                         left = false;
                                         check = false;
 
+                                    }
+                                    if (x - 5 >= 0 && gridModel[x - 5, y] != "empty")
+                                    {
+                                        left = false;
+                                        check = false;
+                                    }
+                                    if (x + 1 < size && gridModel[x + 1, y] != "empty")
+                                    {
+                                        left = false;
+                                        check = false;
                                     }
                                     if (left)
                                     {
@@ -244,11 +267,21 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     break;
                                 case 1:
-                                    if (x + 4 > 7 || gridModel[x + 1, y] != "empty" || gridModel[x + 3, y] != "empty")
+                                    if (x + 4 >= size || gridModel[x + 1, y] != "empty" || gridModel[x + 3, y] != "empty")
                                     {
                                         right = false;
                                         check = false;
 
+                                    }
+                                    if (x + 5 < size && gridModel[x + 5, y] != "empty")
+                                    {
+                                        right = false;
+                                        check = false;
+                                    }
+                                    if (x - 1 >= 0 && gridModel[x - 1, y] != "empty")
+                                    {
+                                        right = false;
+                                        check = false;
                                     }
                                     if (right)
                                     {
@@ -305,6 +338,16 @@ public class GenerateMath : MonoBehaviour
                                         check = false;
 
                                     }
+                                    if (x - 5 >= 0 && gridModel[x - 5, y] != "empty")
+                                    {
+                                        left = false;
+                                        check = false;
+                                    }
+                                    if (x + 1 < size && gridModel[x + 1, y] != "empty")
+                                    {
+                                        left = false;
+                                        check = false;
+                                    }
                                     if (left)
                                     {
                                         dir = Directions.left;
@@ -314,11 +357,21 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     break;
                                 case 1:
-                                    if (x + 4 > size - 1 || gridModel[x + 1, y] != "empty" || gridModel[x + 3, y] != "empty")
+                                    if (x + 4 >= size || gridModel[x + 1, y] != "empty" || gridModel[x + 3, y] != "empty")
                                     {
                                         right = false;
                                         check = false;
 
+                                    }
+                                    if (x + 5 < size && gridModel[x + 5, y] != "empty")
+                                    {
+                                        right = false;
+                                        check = false;
+                                    }
+                                    if (x - 1 >= 0 && gridModel[x - 1, y] != "empty")
+                                    {
+                                        right = false;
+                                        check = false;
                                     }
                                     if (right)
                                     {
@@ -375,6 +428,16 @@ public class GenerateMath : MonoBehaviour
                                         check = false;
 
                                     }
+                                    if (y - 5 >= 0 && gridModel[x, y - 5] != "empty")
+                                    {
+                                        down = false;
+                                        check = false;
+                                    }
+                                    if (y + 1 < size && gridModel[x, y + 1] != "empty")
+                                    {
+                                        down = false;
+                                        check = false;
+                                    }
                                     if (down)
                                     {
                                         dir = Directions.down;
@@ -384,11 +447,21 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     break;
                                 case 1:
-                                    if (y + 4 > size - 1 || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
+                                    if (y + 4 >= size || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
                                     {
                                         check = false;
 
                                         up = false;
+                                    }
+                                    if (y + 5 < size && gridModel[x, y + 5] != "empty")
+                                    {
+                                        up = false;
+                                        check = false;
+                                    }
+                                    if (y - 1 >= 0 && gridModel[x, y - 1] != "empty")
+                                    {
+                                        up = false;
+                                        check = false;
                                     }
                                     if (up)
                                     {
@@ -442,8 +515,16 @@ public class GenerateMath : MonoBehaviour
                                     {
                                         down = false;
                                         check = false;
-
-                                        break;
+                                    }
+                                    if (y - 5 >= 0 && gridModel[x, y - 5] != "empty")
+                                    {
+                                        down = false;
+                                        check = false;
+                                    }
+                                    if (y + 1 < size && gridModel[x, y + 1] != "empty")
+                                    {
+                                        down = false;
+                                        check = false;
                                     }
                                     if (down)
                                     {
@@ -454,11 +535,21 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     break;
                                 case 1:
-                                    if (y + 4 > size - 1 || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
+                                    if (y + 4 >= size || gridModel[x, y + 1] != "empty" || gridModel[x, y + 3] != "empty")
                                     {
                                         up = false;
                                         check = false;
 
+                                    }
+                                    if (y + 5 < size - 1 && gridModel[x, y + 5] != "empty")
+                                    {
+                                        up = false;
+                                        check = false;
+                                    }
+                                    if (y - 1 >= 0 && gridModel[x, y - 1] != "empty")
+                                    {
+                                        up = false;
+                                        check = false;
                                     }
                                     if (up)
                                     {

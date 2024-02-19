@@ -11,6 +11,7 @@ public class SFXManager : MonoBehaviour
     public AudioSource win;
     public AudioSource lose;
     public AudioSource paper;
+    public AudioSource wrong;
     private void Awake()
     {
         if (instance == null)
@@ -71,4 +72,9 @@ public class SFXManager : MonoBehaviour
     {
         paper.Play();
     }   
+    public void PlayWrong()
+    {
+        wrong.Play();
+    }
+
 }

@@ -44,6 +44,7 @@ public class Answer : MonoBehaviour
             else
             {
                 background.color = wrongColor;
+                SFXManager.instance.PlayWrong();
             }
             GameManager.instance.selectedBlank.GetComponent<Blank>().bg.color = Color.white;
             GameManager.instance.selectedBlank.GetComponent<Blank>().isSelected = false;
@@ -65,7 +66,7 @@ public class Answer : MonoBehaviour
         {
             if (isDragging) SFXManager.instance.PlayPaper();
             SetTarget(blankPosition);
-            transform.DOScale(blank.localScale, 0.5f).SetEase(Ease.OutQuart);
+            transform.DOScale(GameManager.instance.spawnParent.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
             if (transform.GetComponent<Number>().value == blankValue)
             {
                 background.color = bgColor;
@@ -74,12 +75,13 @@ public class Answer : MonoBehaviour
             {
                 GameManager.instance.lives--;
                 background.color = wrongColor;
+                SFXManager.instance.PlayWrong();
             }      
         }
         else if (isOnOtherAns && isOnBlank)
         {
             if (isDragging) SFXManager.instance.PlayPaper();
-            transform.DOScale(blank.localScale, 0.5f).SetEase(Ease.OutQuart);
+            transform.DOScale(GameManager.instance.spawnParent.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
             if (transform.GetComponent<Number>().value == blankValue)
             {
                 background.color = bgColor;
@@ -88,6 +90,7 @@ public class Answer : MonoBehaviour
             {
                 GameManager.instance.lives--;
                 background.color = wrongColor;
+                SFXManager.instance.PlayWrong();
             }
             SetTarget(blankPosition);
             anotherCol.GetComponent<Answer>().transform.localScale = Vector3.one;
@@ -170,7 +173,7 @@ public class Answer : MonoBehaviour
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = -6;
-            transform.position =  mousePosition + Vector3.up;
+            transform.position =  mousePosition + Vector3.up * 2;
         }
         else
         {

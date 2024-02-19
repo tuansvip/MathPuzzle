@@ -21,9 +21,8 @@ public class GameManager : MonoBehaviour
         Medium,
         Hard
     }
-    List<int> hardLevel = new List<int> { 14, 20, 26, 37, 43, 49, 56, 58, 66, 73, 88, 100 };
+    List<int> hardLevel = new List<int> { 14, 20, 26, 37, 43, 49, 56, 58, 66, 73, 88, 111, 119, 125, 129, 134, 137, 145, 150, 166, 179, 191, 195, 214, 219, 227, 236, 239, 244, 253, 257, 271, 279, 286, 290, 295, 302, 305, 311, 316, 324, 341, 353, 359, 370, 393, 400, 405, 410, 415, 426, 431, 438, 444, 447, 455, 469, 473, 488, 493, 502, 505, 516, 525, 533, 539, 544, 550, 556, 558, 576, 581, 588, 589, 595, 611, 615, 643, 651, 659, 670, 687, 688, 693, 696, 701, 707, 715, 741, 746, 751, 755, 761, 766, 774, 784, 790, 801, 805, 825, 829, 835, 841, 845, 855, 862, 866, 871, 880, 887, 895, 904, 915, 920, 930, 936, 942, 944, 949, 958, 975, 980, 985, 995, 1000, 1010, 1029, 1040, 1045, 1049, 1063, 1068, 1090, 1097, 1100, 1105, 1119, 1128, 1145, 1149, 1158, 1166, 1172, 1178, 1183, 1191, 1203, 1205, 1210, 1214, 1218, 1248, 1253, 1262, 1279, 1291, 1297, 1298, 1305, 1316, 1320, 1322, 1326, 1333, 1338, 1346, 1359, 1369, 1370, 1381, 1385, 1392, 1393, 1410, 1413, 1431, 1434, 1445, 1456, 1460, 1469, 1478, 1486, 1499, 1512, 1521, 1522, 1530, 1537, 1550, 1561, 1569, 1575, 1581, 1589, 1595, 1600, 1608, 1623, 1625, 1630, 1635, 1641, 1644, 1647, 1653, 1656, 1667, 1677, 1695, 1715, 1726, 1728, 1741, 1745, 1751, 1755, 1766, 1767, 1774, 1779, 1791, 1794, 1805, 1814, 1821, 1825, 1845, 1854, 1862, 1877, 1880, 1884, 1887, 1896, 1901, 1915, 1919, 1926, 1929, 1930, 1940, 1942, 1949, 1961, 1971, 1980, 1985, 1993, 2000, 2004 };
     List<int> easyLevel = new List<int> { 1, 2, 3, 4, 5, 6, 7, 15, 16, 17, 27, 28, 29, 30, 31, 38, 39, 40, 44, 45, 50, 51, 52, 53, 59, 60, 61, 62, 67, 68, 69, 74, 75, 76, 77, 78, 79, 80, 89, 90, 91, 92, 93 };
-    List<int> mediumLevel = new List<int> { 8, 9, 10, 11, 12, 13, 18, 19, 21, 22, 23, 24, 25, 32, 33, 34, 35, 36, 41, 42, 46, 47, 48, 54, 55, 57, 63, 64, 65, 70, 71, 72, 81, 82, 83, 84, 85, 86, 87, 94, 95, 96, 97, 98, 99 };
 
     [Header("#Game Variable")]
     public int length;
@@ -37,10 +36,13 @@ public class GameManager : MonoBehaviour
     public GameObject pausePanel;
     public GameObject ansSpawn;
     public GameObject spawn;
+    public GameObject spawnParent;
     public GameObject losePanel;
     public GameObject musicToggle;
     public GameObject soundToggle;
+    public GameObject nextLevelBtn;
     public Blank selectedBlank = null;
+    public int maxLevel = 300;
 
     [Header("#Game Component")]
     public GenerateMath playzone;
@@ -62,13 +64,12 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log(Time.timeScale);
         if (instance == null)
         {
             instance = this;
         }
         isHighscore = false;
-        time = 0;
+        time = 120;
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         playerData = LoadPlayerData(); 
         soundToggle.GetComponent<ToggleSwitch>().isOn = playerData.isSoundOn;
@@ -80,7 +81,7 @@ public class GameManager : MonoBehaviour
         } else if(easyLevel.IndexOf(playerData.currentLevel) != -1)
         {
             level = Difficult.Easy;
-        } else if(mediumLevel.IndexOf(playerData.currentLevel) != -1)
+        } else
         {
             level = Difficult.Medium;
         } 
@@ -106,12 +107,12 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         if (!isStart) return;
-        time += Time.deltaTime;
+        time -= Time.deltaTime;
         if (checkWin())
         {
             Victory();
         }
-        if (lives <= 0)
+        if (lives <= 0 || time <= 0)
         {
             Defeat();
         }
@@ -167,7 +168,11 @@ public class GameManager : MonoBehaviour
         playzoneobj.SetActive(false);
         pool.SetActive(false);
         playHUD.SetActive(false);
-        if (playerData.currentLevel == playerData.unlockLevel)
+        if (playerData.currentLevel == maxLevel)
+        {
+            nextLevelBtn.SetActive(false);
+        }
+        if (playerData.currentLevel == playerData.unlockLevel && playerData.currentLevel <= maxLevel)
         {
             playerData.unlockLevel++;
         }
@@ -194,7 +199,6 @@ public class GameManager : MonoBehaviour
     {
         if (File.Exists(savePath))
         {
-            Debug.Log("Save file found!");
             string json = File.ReadAllText(savePath);
             json = Encryption.DecryptString(encryptKey, json);
             if (JsonUtility.FromJson<PlayerData>(json) == null)
@@ -301,7 +305,7 @@ public class GameManager : MonoBehaviour
         }
         Color originalColor = ans.GetComponent<Answer>().bgColor;
         ans.GetComponent<Answer>().background.color = new Color(0.9608f, 0.4588f, 0.8824f);
-        ans.transform.DOMove(targerTransform.position, 1f);
+        ans.transform.DOMove(targerTransform.position + Vector3.back, 1f);
         ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1f);
         StartCoroutine(ChangeColor(ans.GetComponent<Answer>(), originalColor));
     }
@@ -311,6 +315,8 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(2f);
         answer.background.color = originalColor;
     }
+
+
 } 
 
 public class PlayerData
