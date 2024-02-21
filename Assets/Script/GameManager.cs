@@ -304,17 +304,10 @@ public class GameManager : MonoBehaviour
             }
         }
         Color originalColor = ans.GetComponent<Answer>().bgColor;
-        ans.GetComponent<Answer>().background.color = new Color(0.9608f, 0.4588f, 0.8824f);
         ans.transform.DOMove(targerTransform.position + Vector3.back, 1f);
         ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1f);
-        StartCoroutine(ChangeColor(ans.GetComponent<Answer>(), originalColor));
     }
 
-    private IEnumerator ChangeColor(Answer answer, Color originalColor)
-    {
-        yield return new WaitForSeconds(2f);
-        answer.background.color = originalColor;
-    }
 
 
 } 

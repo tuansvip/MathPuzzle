@@ -583,9 +583,10 @@ public class GenerateMath : MonoBehaviour
         {
             return;
         }
-        gridModel[posX[3], posY[3]] = "=";
+
         if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
         {
+            gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
             do
             {
@@ -640,6 +641,7 @@ public class GenerateMath : MonoBehaviour
         else
         if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[2], posY[2]] == "empty")
         {
+            gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
             do
             {
@@ -700,6 +702,7 @@ public class GenerateMath : MonoBehaviour
         else
         if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
         {
+            gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
             do
             {
@@ -723,7 +726,7 @@ public class GenerateMath : MonoBehaviour
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) / int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
                     case "/":
-                        gridModel[posX[4], posY[4]] = Random.Range(2, 6).ToString();
+                        gridModel[posX[4], posY[4]] = Random.Range(2, 10).ToString();
                         if (int.Parse(gridModel[posX[4], posY[4]]) * int.Parse(gridModel[posX[2], posY[2]]) > maxValue) continue;
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) * int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
@@ -758,6 +761,7 @@ public class GenerateMath : MonoBehaviour
         else
         if (gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
         {
+            gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
             do
             {
@@ -774,7 +778,7 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] - values[posX[2], posY[2]];
                         break;
                     case "*":
-                        values[posX[2], posY[2]] = Random.Range(2, 6);
+                        values[posX[2], posY[2]] = Random.Range(2, 10);
                         if (values[posX[0], posY[0]] * values[posX[2], posY[2]] > maxValue) continue;
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] * values[posX[2], posY[2]];
                         break;
@@ -818,6 +822,7 @@ public class GenerateMath : MonoBehaviour
         else
         if (gridModel[posX[0], posY[0]] == "empty")
         {
+            gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
             do
             {
@@ -877,78 +882,156 @@ public class GenerateMath : MonoBehaviour
             } while (!isdone);
         }
         else
-        if (gridModel[posX[2], posY[2]] == "empty")
+        if (gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[0], posY[0]] != "empty" && gridModel[posX[4], posY[4]] != "empty")
         {
             bool isdone = false;
-            do
+            if (values[posX[0], posY[0]] >= values[posX[4], posY[4]])
             {
-                gridModel[posX[1], posY[1]] = RanOp();
-                switch (gridModel[posX[1], posY[1]])
+                gridModel[posX[3], posY[3]] = "=";
+                do
                 {
-                    case "+":
-                        if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
-                        values[posX[2], posY[2]] = values[posX[4], posY[4]] - values[posX[0], posY[0]];
-                        break;
-                    case "-":
-                        if (values[posX[0], posY[0]] - values[posX[4], posY[4]] < 0) continue;
-                        values[posX[2], posY[2]] = values[posX[0], posY[0]] - values[posX[4], posY[4]];
-                        break;
-                    case "*":
-                        if (values[posX[4], posY[4]] % values[posX[0], posY[0]] != 0)
-                        {
+                    gridModel[posX[1], posY[1]] = RanOp();
+                    switch (gridModel[posX[1], posY[1]])
+                    {
+                        case "+":
                             if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
                             values[posX[2], posY[2]] = values[posX[4], posY[4]] - values[posX[0], posY[0]];
-                            gridModel[posX[1], posY[1]] = "+";
-                        }
-                        else
-                        {
-                            values[posX[2], posY[2]] = values[posX[4], posY[4]] / values[posX[0], posY[0]];
-                        }
-                        break;
-                    case "/":
-                        if (values[posX[0], posY[0]] % values[posX[4], posY[4]] != 0)
-                        {
-                            values[posX[2], posY[2]] = values[posX[4], posY[4]] + values[posX[0], posY[0]];
-                            gridModel[posX[1], posY[1]] = "+";
-                        }
-                        else
-                        {
-                            values[posX[2], posY[2]] = values[posX[0], posY[0]] / values[posX[4], posY[4]];
-                        }
-                        break;
-                }
-                if (gridModel[posX[0], posY[0]] == "empty")
-                {
-                    gridModel[posX[0], posY[0]] = values[posX[0], posY[0]].ToString();
-                }
-                if (gridModel[posX[2], posY[2]] == "empty")
-                {
-                    gridModel[posX[2], posY[2]] = values[posX[2], posY[2]].ToString();
-                }
-                if (gridModel[posX[4], posY[4]] == "empty")
-                {
-                    gridModel[posX[4], posY[4]] = values[posX[4], posY[4]].ToString();
-                }
-                int isBlank = Random.Range(0, maxHide);
+                            break;
+                        case "-":
+                            if (values[posX[0], posY[0]] - values[posX[4], posY[4]] < 0) continue;
+                            values[posX[2], posY[2]] = values[posX[0], posY[0]] - values[posX[4], posY[4]];
+                            break;
+                        case "*":
+                            if (values[posX[4], posY[4]] % values[posX[0], posY[0]] != 0)
+                            {
+                                if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
+                                values[posX[2], posY[2]] = values[posX[4], posY[4]] - values[posX[0], posY[0]];
+                                gridModel[posX[1], posY[1]] = "+";
+                                
+                            }
+                            else
+                            {
+                                values[posX[2], posY[2]] = values[posX[4], posY[4]] / values[posX[0], posY[0]];
+                            }
+                            break;
+                        case "/":
+                            if (values[posX[0], posY[0]] % values[posX[4], posY[4]] != 0)
+                            {
+                                if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
+                                values[posX[2], posY[2]] = values[posX[4], posY[4]] - values[posX[0], posY[0]];
+                                gridModel[posX[1], posY[1]] = "+";
+                            }
+                            else
+                            {
+                                values[posX[2], posY[2]] = values[posX[0], posY[0]] / values[posX[4], posY[4]];
+                            }
+                            break;
+                    }
+                    if (gridModel[posX[0], posY[0]] == "empty")
+                    {
+                        gridModel[posX[0], posY[0]] = values[posX[0], posY[0]].ToString();
+                    }
+                    if (gridModel[posX[2], posY[2]] == "empty")
+                    {
+                        gridModel[posX[2], posY[2]] = values[posX[2], posY[2]].ToString();
+                    }
+                    if (gridModel[posX[4], posY[4]] == "empty")
+                    {
+                        gridModel[posX[4], posY[4]] = values[posX[4], posY[4]].ToString();
+                    }
+                    int isBlank = Random.Range(0, maxHide);
 
-                switch (isBlank)
+                    switch (isBlank)
+                    {
+                        case 0:
+                            gridModel[posX[0], posY[0]] = "blank";
+                            break;
+                        case 1:
+                            gridModel[posX[2], posY[2]] = "blank";
+                            break;
+                        case 2:
+                            gridModel[posX[4], posY[4]] = "blank";
+                            break;
+                    }
+                    isdone = true;
+                } while (!isdone);
+            }
+            else
+            {
+                gridModel[posX[1], posY[1]] = "=";
+                do
                 {
-                    case 0:
-                        gridModel[posX[0], posY[0]] = "blank";
-                        break;
-                    case 1:
-                        gridModel[posX[2], posY[2]] = "blank";
-                        break;
-                    case 2:
-                        gridModel[posX[4], posY[4]] = "blank";
-                        break;
-                }
-                isdone = true;
-            } while (!isdone);  
+                    gridModel[posX[3], posY[3]] = RanOp();
+                    switch (gridModel[posX[3], posY[3]])
+                    {
+                        case "+":
+                            if (values[posX[0], posY[0]] - values[posX[4], posY[4]] < 0) continue;
+                            values[posX[2], posY[2]] = values[posX[0], posY[0]] - values[posX[4], posY[4]];
+                            break;
+                        case "-":
+                            if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
+                            values[posX[2], posY[2]] = values[posX[4], posY[4]] - values[posX[0], posY[0]];
+                            break;
+                        case "*":
+                            if (values[posX[0], posY[0]] % values[posX[4], posY[4]] != 0)
+                            {
+                                if (values[posX[0], posY[0]] - values[posX[4], posY[4]] < 0) continue;
+                                values[posX[2], posY[2]] = values[posX[0], posY[0]] - values[posX[4], posY[4]];
+                                gridModel[posX[1], posY[1]] = "+";
+
+                            }
+                            else
+                            {
+                                values[posX[2], posY[2]] = values[posX[0], posY[0]] / values[posX[4], posY[4]];
+                            }
+                            break;
+                        case "/":
+                            if (values[posX[4], posY[4]] % values[posX[0], posY[0]] != 0)
+                            {
+                                if (values[posX[0], posY[0]] - values[posX[4], posY[4]] < 0) continue;
+                                values[posX[2], posY[2]] = values[posX[0], posY[0]] - values[posX[4], posY[4]];
+                                gridModel[posX[1], posY[1]] = "+";
+                            }
+                            else
+                            {
+                                values[posX[2], posY[2]] = values[posX[4], posY[4]] / values[posX[0], posY[0]];
+                            }
+                            break;
+                    }
+                    if (gridModel[posX[0], posY[0]] == "empty")
+                    {
+                        gridModel[posX[0], posY[0]] = values[posX[0], posY[0]].ToString();
+                    }
+                    if (gridModel[posX[2], posY[2]] == "empty")
+                    {
+                        gridModel[posX[2], posY[2]] = values[posX[2], posY[2]].ToString();
+                    }
+                    if (gridModel[posX[4], posY[4]] == "empty")
+                    {
+                        gridModel[posX[4], posY[4]] = values[posX[4], posY[4]].ToString();
+                    }
+                    int isBlank = Random.Range(0, maxHide);
+
+                    switch (isBlank)
+                    {
+                        case 0:
+                            gridModel[posX[0], posY[0]] = "blank";
+                            break;
+                        case 1:
+                            gridModel[posX[2], posY[2]] = "blank";
+                            break;
+                        case 2:
+                            gridModel[posX[4], posY[4]] = "blank";
+                            break;
+                    }
+                    isdone = true;
+                } while (!isdone);
+            }
         }
         else
         if (gridModel[posX[4], posY[4]] == "empty")
         {
+            gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
             do
             {
