@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,49 +12,29 @@ public class MenuManager : MonoBehaviour
 {
     public static MenuManager instance;
 
-    public GameObject mainCamera, menu, level, highScore, levelBtnPrefab, lvContainer;
+    [Header("Panels")]
+    public GameObject selectChalengePanel;
+    public GameObject selectChalengePanel_Child;
+    public GameObject homePanel, shopPanel, dailyPanel;
 
-    public int maxLevel = 300;
-    bool isChooseLevel;
-    bool isChooseHighScore;
+    [Header("GameObjects")]
+    public GameObject canvas;
+
+    [Header("Others")]
+    public int maxLevel = 2004;
+    public int selectedDaily = DateTime.Today.Day;               
     public bool isStart;
     private string savePath;
     public PlayerData playerData;
     string encryptKey = "iamnupermane4133bbce2ea2315a1916";
-                         
-
-
 
     private void Awake()
     {
         instance = this;
-        isChooseLevel = false;
-        isChooseHighScore = false;
         isStart = false;
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         Application.targetFrameRate = 144;
         playerData = LoadPlayerData();
-
-        for (int  i = 1;  i <= maxLevel;  i++)
-        {
-            if (LoadPlayerData().unlockLevel >= i)
-            {
-                GameObject btn = Instantiate(levelBtnPrefab, lvContainer.transform);
-                btn.GetComponent<LevelBtn>().value = i;
-                btn.GetComponent<LevelBtn>().isUnlocked = true;
-                btn.GetComponentInChildren<TextMeshProUGUI>().text = i.ToString();
-                btn.name = "Level " + i;
-            }
-            else
-            {
-                GameObject btn = Instantiate(levelBtnPrefab, lvContainer.transform);
-                btn.GetComponent<LevelBtn>().value = i;
-                btn.GetComponent<LevelBtn>().isUnlocked = false;
-                btn.GetComponentInChildren<TextMeshProUGUI>().text = i.ToString();
-                btn.name = "Level " + i;
-            }
-        }
-        ResizeParent();
     }
     private void Start()
     {
@@ -73,11 +54,9 @@ public class MenuManager : MonoBehaviour
         {
             SFXManager.instance.MuteSfx();
         }
+
     }
-    void ResizeParent()
-    {
-        lvContainer.GetComponent<RectTransform>().sizeDelta = new Vector2(lvContainer.GetComponent<RectTransform>().sizeDelta.x, (maxLevel/5f) + (0.5f* (maxLevel / 5f)));
-    }
+
     public void SavePlayerData(PlayerData data)
     {
         string json = JsonUtility.ToJson(data);
@@ -94,7 +73,7 @@ public class MenuManager : MonoBehaviour
             if (JsonUtility.FromJson<PlayerData>(json) == null)
             {
                 Debug.LogWarning("Save file incorrect, creating a new one!");
-                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
+                string json2 = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true));
                 json2 = Encryption.EncryptString(encryptKey, json2);
                 File.WriteAllText(savePath, json2);
                 json2 = Encryption.DecryptString(encryptKey, json2);
@@ -105,87 +84,78 @@ public class MenuManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
-            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
+            string json = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true));
             json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
             json = Encryption.DecryptString(encryptKey, json);
             return JsonUtility.FromJson<PlayerData>(json);
         }
     }
-    public void Level()
-    {
-        SFXManager.instance.PlayClick();
-        isChooseLevel = true;
-        isChooseHighScore = false;
-        highScore.SetActive(false);
-        level.SetActive(true);
-    }
-    public void Backtomenu()
-    {
-        SFXManager.instance.PlayClick();
-        isChooseLevel = false;
-        isChooseHighScore = false;
-        highScore.SetActive(false);
-        level.SetActive(false);
-    }
-    public void HighScore()
-    {
-        SFXManager.instance.PlayClick();
-        isChooseHighScore = true;
-        isChooseLevel = false;
-        highScore.SetActive(true);
-        level.SetActive(false);
-    }
-    public void PlayHighestLevel()
-    {
-        SFXManager.instance.PlayClick();
-        isStart = true;
-        if (playerData.unlockLevel > maxLevel)
-        {
-            playerData.currentLevel = playerData.unlockLevel - 1;
-        } else playerData.currentLevel = playerData.unlockLevel;
-        SavePlayerData(playerData);
-        StartCoroutine(StartLevel());
-    }
-    public void ContinueGame()
-    {
-        SFXManager.instance.PlayClick();
-        isStart = true;
-        StartCoroutine(StartLevel());
-    }
-    public void LevelSelected(int selectedLevel)
-    {
-        SFXManager.instance.PlayClick();
-        isStart = true;
-        playerData.currentLevel = selectedLevel;
-        SavePlayerData(playerData);
-        StartCoroutine(StartLevel());
-    }
 
-    private IEnumerator StartLevel()
+    public void PlayChalenge()
     {
-        yield return new WaitForSeconds(0.5f);
-        SceneManager.LoadScene("sample");
-
-    }    
-
-    private void Update()
-    {
-        if (isChooseLevel)
-        {
-            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(20, 0, -10), 0.1f);
-        } else if (isChooseHighScore)
-        {
-            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(20, -20, -10), 0.1f);
-        }
-        if (!isChooseLevel && !isChooseHighScore)
-        {
-            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(20, 20, -10), 0.1f);
-        }
-        if (isStart)
-        {
-            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, new Vector3(0, 0, -10), 0.1f);
-        }
+        selectChalengePanel.SetActive(true);
+        selectChalengePanel_Child.GetComponent<RectTransform>().DOMove(Vector3.zero + canvas.GetComponent<RectTransform>().position, 1f);
     }
+    public void CloseChalenge()
+    {
+        selectChalengePanel_Child.GetComponent<RectTransform>().DOMove(Vector3.right * 10000 + canvas.GetComponent<RectTransform>().position, 0.4f).OnComplete(() => selectChalengePanel.SetActive(false));
+    }
+        
+    
 
+    public void StartGame(int chalenge)
+    {
+        switch (chalenge)
+        {
+            case 1:
+                playerData.chalenge = PlayerData.Chalenge.Level;
+                SavePlayerData(playerData);
+                SceneManager.LoadScene("sample");
+                break;
+            case 2:
+                playerData.chalenge = PlayerData.Chalenge.Daily;
+                SavePlayerData(playerData);
+                SceneManager.LoadScene("sample");
+                break;
+            case 3:
+                playerData.chalenge = PlayerData.Chalenge.Easy;
+                SavePlayerData(playerData);
+                SceneManager.LoadScene("sample");
+                break;
+            case 4:
+                playerData.chalenge = PlayerData.Chalenge.Medium;
+                SavePlayerData(playerData);
+                SceneManager.LoadScene("sample");
+                break;
+            case 5:
+                playerData.chalenge = PlayerData.Chalenge.Hard;
+                SavePlayerData(playerData);
+                SceneManager.LoadScene("sample");
+                break;
+
+        }     
+    }
+    
+    public void Home()
+    {
+        homePanel.SetActive(true);
+
+        shopPanel.SetActive(false);
+        dailyPanel.SetActive(false);
+    }
+    public void Shop()
+    {
+        shopPanel.SetActive(true);
+
+        homePanel.SetActive(false);
+        dailyPanel.SetActive(false);
+    }
+    public void Daily()
+    {
+        dailyPanel.SetActive(true);
+
+        homePanel.SetActive(false);
+        shopPanel.SetActive(false);
+    }
 }

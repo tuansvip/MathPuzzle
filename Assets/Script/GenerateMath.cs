@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +23,7 @@ public class GenerateMath : MonoBehaviour
     }
     public GameObject opPrefab, numberPrefab, blankPrefab, answerPrefab;
     public GameObject[,] grid;
-    List<GameObject> cellAnswer;
+    public List<GameObject> cellAnswer;
     List<GameObject> cellBlank;
     public string[,] gridModel;
     public int[] posX = new int[5];
@@ -43,24 +44,51 @@ public class GenerateMath : MonoBehaviour
 
     public void Generate(GameManager.Difficult level)
     {
-        switch (level)
+        switch (GameManager.instance.playerData.chalenge)
         {
-            case GameManager.Difficult.Easy:
+            case PlayerData.Chalenge.Easy:
                 size = 8;
-                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
-                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                maxRange = 200;
                 maxHide = 2;
                 break;
-            case GameManager.Difficult.Medium:
+            case PlayerData.Chalenge.Medium:
                 size = 14;
-                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
-                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                maxRange = 500;
                 maxHide = 3;
                 break;
-            case GameManager.Difficult.Hard:
+            case PlayerData.Chalenge.Hard:
                 size = 14;
-                maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
-                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                maxRange = 1000;
+                maxHide = 3;
+                break;
+            case PlayerData.Chalenge.Level:
+                {
+                    switch (level)
+                    {
+                        case GameManager.Difficult.Easy:
+                            size = 8;
+                            maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                            maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                            maxHide = 2;
+                            break;
+                        case GameManager.Difficult.Medium:
+                            size = 14;
+                            maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                            maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                            maxHide = 3;
+                            break;
+                        case GameManager.Difficult.Hard:
+                            size = 14;
+                            maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
+                            maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                            maxHide = 3;
+                            break;
+                    }
+                }
+                break;
+            case PlayerData.Chalenge.Daily:
+                size = 14;
+                maxRange = 1000;
                 maxHide = 3;
                 break;
         }
@@ -74,20 +102,62 @@ public class GenerateMath : MonoBehaviour
         GenerateGrid();
         SuffleAnswers();
     }
+    public static IList<T> Swap<T>(IList<T> list, int indexA, int indexB)
+    {
+        (list[indexA], list[indexB]) = (list[indexB], list[indexA]);
+        return list;
+    }
     public void SuffleAnswers()
     {
         for (int i = 0; i < cellAnswer.Count; i++)
         {
             int ran = Random.Range(0, cellAnswer.Count);
-            Vector3 temp = cellAnswer[i].transform.position;
-            Vector3 tempFs = cellAnswer[i].GetComponent<Answer>().startPosition;
-            Vector3 tempTarget = cellAnswer[i].GetComponent<Answer>().targetPosition;
-            cellAnswer[i].transform.position = cellAnswer[ran].transform.position;
-            cellAnswer[i].GetComponent<Answer>().startPosition = cellAnswer[ran].GetComponent<Answer>().startPosition;
-            cellAnswer[i].GetComponent<Answer>().targetPosition = cellAnswer[ran].GetComponent<Answer>().targetPosition;
-            cellAnswer[ran].transform.position = temp;
-            cellAnswer[ran].GetComponent<Answer>().startPosition = tempFs;
-            cellAnswer[ran].GetComponent<Answer>().targetPosition = tempTarget;
+            if (!cellAnswer[i].GetComponent<Answer>().isOnBlank && !cellAnswer[ran].GetComponent<Answer>().isOnBlank)
+            {
+                Vector3 tempFs = cellAnswer[i].GetComponent<Answer>().startPosition;
+                Vector3 tempTarget = cellAnswer[i].GetComponent<Answer>().targetPosition;
+                cellAnswer[i].GetComponent<Answer>().startPosition = cellAnswer[ran].GetComponent<Answer>().startPosition;
+                cellAnswer[i].GetComponent<Answer>().targetPosition = cellAnswer[ran].GetComponent<Answer>().targetPosition;
+                cellAnswer[ran].GetComponent<Answer>().startPosition = tempFs;
+                cellAnswer[ran].GetComponent<Answer>().targetPosition = tempTarget;
+                Swap(cellAnswer, i, ran);
+            }
+        }
+    }
+    public void SortAnswers()
+    {
+        for (int i = 0; i < cellAnswer.Count - 1; i++)
+        {
+            for (int j = i; j < cellAnswer.Count; j++)
+            {
+                if (cellAnswer[i].GetComponent<Number>().value < cellAnswer[j].GetComponent<Number>().value && !cellAnswer[i].GetComponent<Answer>().isOnBlank && !cellAnswer[j].GetComponent<Answer>().isOnBlank)
+                {
+                    Vector3 tempFs = cellAnswer[i].GetComponent<Answer>().startPosition;
+                    Vector3 tempTarget = cellAnswer[i].GetComponent<Answer>().targetPosition;
+                    cellAnswer[i].GetComponent<Answer>().startPosition = cellAnswer[j].GetComponent<Answer>().startPosition;
+                    cellAnswer[i].GetComponent<Answer>().targetPosition = cellAnswer[j].GetComponent<Answer>().targetPosition;
+                    cellAnswer[j].GetComponent<Answer>().startPosition = tempFs;
+                    cellAnswer[j].GetComponent<Answer>().targetPosition = tempTarget;               
+                    Swap(cellAnswer, i, j);
+                }
+                
+            }           
+        }
+        bool check = true;
+        for (int i = 0; i < cellAnswer.Count - 1; i++)
+        {
+            for (int j = i; j < cellAnswer.Count; j++)
+            {
+                if (cellAnswer[i].GetComponent<Number>().value < cellAnswer[j].GetComponent<Number>().value && !cellAnswer[i].GetComponent<Answer>().isOnBlank && !cellAnswer[j].GetComponent<Answer>().isOnBlank)
+                {
+                    check = false;
+                }
+
+            }
+        }
+        if (!check)
+        {
+            SortAnswers();
         }
     }
     public void GenerateGrid()

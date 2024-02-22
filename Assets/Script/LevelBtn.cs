@@ -26,6 +26,5 @@ public class LevelBtn : MonoBehaviour
     }
     void OnButtonClick()
     {
-        MenuManager.instance.LevelSelected(value);
     }
 }

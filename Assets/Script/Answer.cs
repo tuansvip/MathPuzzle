@@ -43,7 +43,7 @@ public class Answer : MonoBehaviour
             }
             else
             {
-                background.color = wrongColor;
+                background.color = wrongColor; 
                 SFXManager.instance.PlayWrong();
             }
             GameManager.instance.selectedBlank.GetComponent<Blank>().bg.color = Color.white;
@@ -73,8 +73,8 @@ public class Answer : MonoBehaviour
             }
             else
             {
-                GameManager.instance.lives--;
                 background.color = wrongColor;
+
                 SFXManager.instance.PlayWrong();
             }      
         }
@@ -88,7 +88,6 @@ public class Answer : MonoBehaviour
             }
             else
             {
-                GameManager.instance.lives--;
                 background.color = wrongColor;
                 SFXManager.instance.PlayWrong();
             }

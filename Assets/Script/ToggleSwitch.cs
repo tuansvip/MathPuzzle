@@ -9,7 +9,8 @@ public class ToggleSwitch : MonoBehaviour
     public enum SwitchType
     {
         Sound,
-        Music
+        Music,
+        Vibration
     }
 
     public bool isOn = false;
@@ -29,7 +30,7 @@ public class ToggleSwitch : MonoBehaviour
             {
                 SFXManager.instance.UnmuteSfx();
             }
-            else
+            else if (switchType == SwitchType.Music)
             {
                 SFXManager.instance.UnmuteMusic();
             }
@@ -42,7 +43,7 @@ public class ToggleSwitch : MonoBehaviour
             {
                 SFXManager.instance.MuteSfx();
             }
-            else
+            else if (switchType == SwitchType.Music)
             {
                 SFXManager.instance.MuteMusic();
             }

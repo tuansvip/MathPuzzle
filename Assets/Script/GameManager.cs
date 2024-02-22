@@ -40,9 +40,10 @@ public class GameManager : MonoBehaviour
     public GameObject losePanel;
     public GameObject musicToggle;
     public GameObject soundToggle;
+    public GameObject vibrateToggle;
     public GameObject nextLevelBtn;
     public Blank selectedBlank = null;
-    public int maxLevel = 300;
+    public int maxLevel = 2004;
 
     [Header("#Game Component")]
     public GenerateMath playzone;
@@ -52,9 +53,8 @@ public class GameManager : MonoBehaviour
     public Difficult level;
     public float time;
     public bool isHighscore;
-    public int lives = 3;
 
-
+    public bool isSorted = false;
     float shortestTimeEasy;
     float shortestTimeMedium;
     float shortestTimeHard;
@@ -69,22 +69,45 @@ public class GameManager : MonoBehaviour
             instance = this;
         }
         isHighscore = false;
-        time = 120;
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         playerData = LoadPlayerData(); 
+        Debug.Log("Money =" + playerData.money);
         soundToggle.GetComponent<ToggleSwitch>().isOn = playerData.isSoundOn;
         musicToggle.GetComponent<ToggleSwitch>().isOn = playerData.isMusicOn;
         Application.targetFrameRate = 144;
-        if (hardLevel.IndexOf(playerData.currentLevel) != -1)
-        {
-            level = Difficult.Hard;
-        } else if(easyLevel.IndexOf(playerData.currentLevel) != -1)
+        if (playerData.chalenge == PlayerData.Chalenge.Easy)
         {
             level = Difficult.Easy;
-        } else
+            time = 45;
+        }
+        else if (playerData.chalenge == PlayerData.Chalenge.Medium)
         {
             level = Difficult.Medium;
-        } 
+            time = 60;
+        }
+        else if (playerData.chalenge == PlayerData.Chalenge.Hard || playerData.chalenge == PlayerData.Chalenge.Daily)
+        { 
+            level = Difficult.Hard;
+            time = 90;
+        }
+        else if (playerData.chalenge == PlayerData.Chalenge.Level)
+        {
+            if (hardLevel.IndexOf(playerData.currentLevel) != -1)
+            {
+                level = Difficult.Hard;
+                time = 90;
+            }
+            else if (easyLevel.IndexOf(playerData.currentLevel) != -1)
+            {
+                level = Difficult.Easy;
+                time = 45;
+            }
+            else
+            {
+                level = Difficult.Medium;
+                time = 60;
+            }
+        }
         Debug.Log("Level: " + playerData.currentLevel + ";  Difficult: " + level);
         playzone.GetComponent<GenerateMath>().Generate(level);
         length = playzone.size;
@@ -112,10 +135,6 @@ public class GameManager : MonoBehaviour
         {
             Victory();
         }
-        if (lives <= 0 || time <= 0)
-        {
-            Defeat();
-        }
     }
 
 
@@ -138,43 +157,31 @@ public class GameManager : MonoBehaviour
         switch (level)
         {
             case Difficult.Easy:
-                if (time < playerData.easy || playerData.easy == 0)
-                {
-                    Debug.Log(time);
-                    isHighscore = true;
-                    playerData.easy = time;
-                    Debug.Log(playerData.easy);
-                    SavePlayerData(playerData);
-                }
+                playerData.money += 10;
+                SavePlayerData(playerData);
+                
                 break;
             case Difficult.Medium:
-                if (time < playerData.medium || playerData.medium == 0)
-                {
-                    isHighscore = true;
-                    playerData.medium = time;
-                    SavePlayerData(playerData);
-                }
+                playerData.money += 20;
+                SavePlayerData(playerData);
                 break;
             case Difficult.Hard:
-                if (time < playerData.hard || playerData.hard == 0)
-                {
-                    isHighscore = true;
-                    playerData.hard = time;
-                    SavePlayerData(playerData);
-                }
+                playerData.money += 30;
+                playerData.hint++;
+                SavePlayerData(playerData);
                 break;
         }
         Time.timeScale = 0;
         playzoneobj.SetActive(false);
         pool.SetActive(false);
         playHUD.SetActive(false);
+        if (playerData.chalenge == PlayerData.Chalenge.Level)
+        {
+            playerData.currentLevel++;
+        }
         if (playerData.currentLevel == maxLevel)
         {
             nextLevelBtn.SetActive(false);
-        }
-        if (playerData.currentLevel == playerData.unlockLevel && playerData.currentLevel <= maxLevel)
-        {
-            playerData.unlockLevel++;
         }
         SavePlayerData(playerData);
         winPanel.SetActive(true);
@@ -183,7 +190,6 @@ public class GameManager : MonoBehaviour
     {
         SFXManager.instance.PlayClick();
         Time.timeScale = 1;
-        playerData.currentLevel++;
         isHighscore = false;
         SavePlayerData(playerData);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -204,7 +210,7 @@ public class GameManager : MonoBehaviour
             if (JsonUtility.FromJson<PlayerData>(json) == null)
             {
                 Debug.LogWarning("Save file incorrect, creating a new one!");
-                string json2 = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
+                string json2 = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true));
                 json2 = Encryption.EncryptString(encryptKey, json2);
                 File.WriteAllText(savePath, json2);
                 json2 = Encryption.DecryptString(encryptKey, json2);
@@ -215,7 +221,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
-            string json = JsonUtility.ToJson(new PlayerData(0, 0, 0, 1, 1, true, true));
+            string json = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true));
             json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
             json = Encryption.DecryptString(encryptKey, json);
@@ -274,10 +280,12 @@ public class GameManager : MonoBehaviour
     {
         playerData.isSoundOn = soundToggle.GetComponent<ToggleSwitch>().isOn;
         playerData.isMusicOn = musicToggle.GetComponent<ToggleSwitch>().isOn;
+        playerData.isVibrateOn = vibrateToggle.GetComponent<ToggleSwitch>().isOn;
         SavePlayerData(playerData);
     }
     public void Hint()
     {
+        if (playerData.hint < 1) return;
         List<GameObject> listAns = new List<GameObject>();
         for (int i = 0; i < ansSpawn.transform.childCount; i++)
         {
@@ -306,30 +314,53 @@ public class GameManager : MonoBehaviour
         Color originalColor = ans.GetComponent<Answer>().bgColor;
         ans.transform.DOMove(targerTransform.position + Vector3.back, 1f);
         ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1f);
+        playerData.hint--;
+        SavePlayerData(playerData);
     }
-
+    public void Sorting()
+    {
+        if (isSorted)
+        {
+            playzone.GetComponent<GenerateMath>().SuffleAnswers();
+            isSorted = false;
+        }
+        else
+        {
+            playzone.GetComponent<GenerateMath>().SortAnswers();
+            isSorted = true;
+        }
+    }
 
 
 } 
 
 public class PlayerData
 {
-    public float hard;
-    public float medium;
-    public float easy;
+    public enum Chalenge
+    {
+        Easy,
+        Medium,
+        Hard,
+        Level,
+        Daily
+    }
     public int currentLevel;
-    public int unlockLevel;
+    public Chalenge chalenge;
+    public int money;
+    public int hint;
+    public bool noAds;
     public bool isMusicOn;
     public bool isSoundOn;
-
-    public PlayerData(float hard, float medium, float easy, int currentLevel, int unlockLevel, bool isMusicOn, bool isSoundOn)
+    public bool isVibrateOn;
+    public PlayerData(int currentLevel, Chalenge chalenge, int money, int hint, bool noAds, bool isMusicOn, bool isSoundOn, bool isVibrateOn)
     {
-        this.hard = hard;
-        this.medium = medium;
-        this.easy = easy;
         this.currentLevel = currentLevel;
-        this.unlockLevel = unlockLevel;
+        this.chalenge = chalenge;
+        this.money = money;
+        this.hint = hint;
+        this.noAds = noAds;
         this.isMusicOn = isMusicOn;
         this.isSoundOn = isSoundOn;
+        this.isVibrateOn = isVibrateOn;
     }
 }
