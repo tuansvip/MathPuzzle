@@ -33,6 +33,7 @@ public class Answer : MonoBehaviour
     {
         if (GameManager.instance.selectedBlank != null)
         {
+            GameManager.instance.AddState();
             SFXManager.instance.PlayPaper();
             SetTarget(GameManager.instance.selectedBlank.transform.position);
             transform.position = GameManager.instance.selectedBlank.transform.position;
@@ -44,6 +45,7 @@ public class Answer : MonoBehaviour
             else
             {
                 background.color = wrongColor; 
+                if (GameManager.instance.playerData.isVibrateOn) Handheld.Vibrate();
                 SFXManager.instance.PlayWrong();
             }
             GameManager.instance.selectedBlank.GetComponent<Blank>().bg.color = Color.white;
@@ -64,6 +66,7 @@ public class Answer : MonoBehaviour
         transform.position = transform.position + Vector3.back * -5;
         if (!isOnOtherAns && isOnBlank)
         {
+            GameManager.instance.AddState();
             if (isDragging) SFXManager.instance.PlayPaper();
             SetTarget(blankPosition);
             transform.DOScale(GameManager.instance.spawnParent.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
@@ -74,12 +77,13 @@ public class Answer : MonoBehaviour
             else
             {
                 background.color = wrongColor;
-
+                if (GameManager.instance.playerData.isVibrateOn) Handheld.Vibrate();
                 SFXManager.instance.PlayWrong();
             }      
         }
         else if (isOnOtherAns && isOnBlank)
         {
+            GameManager.instance.AddState();
             if (isDragging) SFXManager.instance.PlayPaper();
             transform.DOScale(GameManager.instance.spawnParent.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
             if (transform.GetComponent<Number>().value == blankValue)
@@ -89,6 +93,7 @@ public class Answer : MonoBehaviour
             else
             {
                 background.color = wrongColor;
+                if (GameManager.instance.playerData.isVibrateOn) Handheld.Vibrate();
                 SFXManager.instance.PlayWrong();
             }
             SetTarget(blankPosition);
@@ -176,6 +181,14 @@ public class Answer : MonoBehaviour
         }
         else
         {
+            if (isOnBlank)
+            {
+                transform.DOScale(GameManager.instance.spawnParent.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
+            }
+            else
+            {
+                transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
+            }
             if (targetPosition == startPosition)
             {
                 background.color = bgColor;

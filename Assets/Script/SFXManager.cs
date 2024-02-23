@@ -40,6 +40,7 @@ public class SFXManager : MonoBehaviour
         win.mute = true;
         lose.mute = true;
         paper.mute = true;
+        wrong.mute = true;
     }
     public void UnmuteSfx()
     {
@@ -48,6 +49,7 @@ public class SFXManager : MonoBehaviour
         win.mute = false;
         lose.mute = false;
         paper.mute = false;
+        wrong.mute = false;
     }
     public void PlayPick()
     {

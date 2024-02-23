@@ -24,7 +24,7 @@ public class Daily : MonoBehaviour
 
     private void Clicked()
     {
-        MenuManager.instance.selectedDaily = int.Parse(GetComponentInChildren<Text>().text);
+        MenuManager.instance.playerData.day = int.Parse(GetComponentInChildren<Text>().text);
     }
 
     private void Update()

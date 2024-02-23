@@ -6,6 +6,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static ToggleSwitch;
 
 public class MenuManager : MonoBehaviour
@@ -16,9 +17,20 @@ public class MenuManager : MonoBehaviour
     public GameObject selectChalengePanel;
     public GameObject selectChalengePanel_Child;
     public GameObject homePanel, shopPanel, dailyPanel;
+    public GameObject settingsPanel;
+    public GameObject settingsPanel_Child;
 
     [Header("GameObjects")]
     public GameObject canvas;
+    public ToggleSwitch musicSwitch;
+    public ToggleSwitch soundSwitch;
+    public ToggleSwitch vibrateSwitch;
+
+
+    [Header("Buttons")]
+    public Button homeButton;
+    public Button shopButton;
+    public Button dailyButton;
 
     [Header("Others")]
     public int maxLevel = 2004;
@@ -27,6 +39,7 @@ public class MenuManager : MonoBehaviour
     private string savePath;
     public PlayerData playerData;
     string encryptKey = "iamnupermane4133bbce2ea2315a1916";
+    
 
     private void Awake()
     {
@@ -35,6 +48,12 @@ public class MenuManager : MonoBehaviour
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         Application.targetFrameRate = 144;
         playerData = LoadPlayerData();
+        musicSwitch.isOn = playerData.isMusicOn;
+        soundSwitch.isOn = playerData.isSoundOn;
+        vibrateSwitch.isOn = playerData.isVibrateOn;
+        shopPanel.GetComponent<RectTransform>().localPosition = Vector3.left * 10000;
+        dailyPanel.GetComponent<RectTransform>().localPosition = Vector3.right * 10000;
+        homeButton.GetComponent<Image>().color = Color.red;
     }
     private void Start()
     {
@@ -73,7 +92,7 @@ public class MenuManager : MonoBehaviour
             if (JsonUtility.FromJson<PlayerData>(json) == null)
             {
                 Debug.LogWarning("Save file incorrect, creating a new one!");
-                string json2 = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true));
+                string json2 = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true, DateTime.Now.Day));
                 json2 = Encryption.EncryptString(encryptKey, json2);
                 File.WriteAllText(savePath, json2);
                 json2 = Encryption.DecryptString(encryptKey, json2);
@@ -84,7 +103,7 @@ public class MenuManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Save file not found, creating a new one!");
-            string json = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true));
+            string json = JsonUtility.ToJson(new PlayerData(1, PlayerData.Chalenge.Level, 0, 0, false, true, true, true, DateTime.Now.Day));
             json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
             json = Encryption.DecryptString(encryptKey, json);
@@ -95,12 +114,13 @@ public class MenuManager : MonoBehaviour
     public void PlayChalenge()
     {
         selectChalengePanel.SetActive(true);
-        selectChalengePanel_Child.GetComponent<RectTransform>().DOMove(Vector3.zero + canvas.GetComponent<RectTransform>().position, 1f);
+        selectChalengePanel_Child.GetComponent<RectTransform>().DOMove(Vector3.zero + canvas.GetComponent<RectTransform>().position, 0.5f);
     }
     public void CloseChalenge()
     {
         selectChalengePanel_Child.GetComponent<RectTransform>().DOMove(Vector3.right * 10000 + canvas.GetComponent<RectTransform>().position, 0.4f).OnComplete(() => selectChalengePanel.SetActive(false));
     }
+
         
     
 
@@ -114,6 +134,7 @@ public class MenuManager : MonoBehaviour
                 SceneManager.LoadScene("sample");
                 break;
             case 2:
+                if (playerData.day < 0 || playerData.daily[playerData.day]) return;
                 playerData.chalenge = PlayerData.Chalenge.Daily;
                 SavePlayerData(playerData);
                 SceneManager.LoadScene("sample");
@@ -139,23 +160,46 @@ public class MenuManager : MonoBehaviour
     
     public void Home()
     {
-        homePanel.SetActive(true);
-
-        shopPanel.SetActive(false);
-        dailyPanel.SetActive(false);
+        homePanel.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
+        shopPanel.GetComponent<RectTransform>().DOMove(Vector3.left * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        dailyPanel.GetComponent<RectTransform>().DOMove(Vector3.right * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        homeButton.GetComponent<Image>().color = Color.red;
+        shopButton.GetComponent<Image>().color = Color.white;
+        dailyButton.GetComponent<Image>().color = Color.white;
     }
     public void Shop()
     {
-        shopPanel.SetActive(true);
-
-        homePanel.SetActive(false);
-        dailyPanel.SetActive(false);
+        shopPanel.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
+        homePanel.GetComponent<RectTransform>().DOMove(Vector3.right * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        dailyPanel.GetComponent<RectTransform>().DOMove(Vector3.right * 20000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        homeButton.GetComponent<Image>().color = Color.white;
+        shopButton.GetComponent<Image>().color = Color.red;
+        dailyButton.GetComponent<Image>().color = Color.white;
     }
     public void Daily()
     {
-        dailyPanel.SetActive(true);
-
-        homePanel.SetActive(false);
-        shopPanel.SetActive(false);
+        Calendar cal = GameObject.Find("Calendar").GetComponent<Calendar>();
+        dailyPanel.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
+        homePanel.GetComponent<RectTransform>().DOMove(Vector3.left * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        shopPanel.GetComponent<RectTransform>().DOMove(Vector3.left * 20000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        homeButton.GetComponent<Image>().color = Color.white;
+        shopButton.GetComponent<Image>().color = Color.white;
+        dailyButton.GetComponent<Image>().color = Color.red;
+    }
+    public void SaveSetting()
+    {
+        playerData.isSoundOn = musicSwitch.GetComponent<ToggleSwitch>().isOn;
+        playerData.isMusicOn = soundSwitch.GetComponent<ToggleSwitch>().isOn;
+        playerData.isVibrateOn = vibrateSwitch.GetComponent<ToggleSwitch>().isOn;
+        SavePlayerData(playerData);
+    }
+    public void SettingClick()
+    {
+        settingsPanel.SetActive(true);
+        settingsPanel_Child.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
+    }
+    public void CloseSetting()
+    {
+        settingsPanel_Child.GetComponent<RectTransform>().DOMove(Vector3.up * 10000 + canvas.GetComponent<RectTransform>().position, 0.25f).OnComplete(() => settingsPanel.SetActive(false));
     }
 }

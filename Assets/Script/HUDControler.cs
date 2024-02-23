@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class HUDControler : MonoBehaviour
@@ -15,7 +16,8 @@ public class HUDControler : MonoBehaviour
         HighscoreHard,
         LevelText,
         NewGameTxt,
-        Heart
+        Heart,
+        HintText
 
     }
     public HUDState state;
@@ -39,15 +41,39 @@ public class HUDControler : MonoBehaviour
             case HUDState.HighscoreHard:
                 break;
             case HUDState.LevelText:
-                if (GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Level)
+                if (SceneManager.GetActiveScene().name == "sample")
                 {
-                    GetComponent<TextMeshProUGUI>().text = "Level " + GameManager.instance.playerData.currentLevel;
-                }          
+                    if (GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Level)
+                        GetComponent<TextMeshProUGUI>().text = "Level " + GameManager.instance.playerData.currentLevel;
+                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Daily)
+                        GetComponent<TextMeshProUGUI>().text = "Daily Chalenge";
+                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Hard) 
+                        GetComponent<TextMeshProUGUI>().text = "Hard";
+                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Medium) 
+                        GetComponent<TextMeshProUGUI>().text = "Medium";
+                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Easy) 
+                        GetComponent<TextMeshProUGUI>().text = "Easy";
+                }
+                else
+                {
+                    GetComponent<Text>().text = "Level " + MenuManager.instance.playerData.currentLevel;
+                }        
                 break;
             case HUDState.NewGameTxt:
                 break;
             case HUDState.Heart:
                 break;
+            case HUDState.HintText:
+                if (SceneManager.GetActiveScene().name == "sample")
+                {
+                    GetComponent<TextMeshProUGUI>().text = GameManager.instance.playerData.hint.ToString();
+                }
+                else
+                {
+                    GetComponent<Text>().text = MenuManager.instance.playerData.hint.ToString();
+                }
+                break;
+
         }
     }
 }

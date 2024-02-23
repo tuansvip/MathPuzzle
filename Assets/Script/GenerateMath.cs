@@ -58,7 +58,7 @@ public class GenerateMath : MonoBehaviour
                 break;
             case PlayerData.Chalenge.Hard:
                 size = 14;
-                maxRange = 1000;
+                maxRange = 500;
                 maxHide = 3;
                 break;
             case PlayerData.Chalenge.Level:
@@ -68,6 +68,7 @@ public class GenerateMath : MonoBehaviour
                         case GameManager.Difficult.Easy:
                             size = 8;
                             maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                            if (maxRange > 500) maxRange = 500;
                             maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
                             maxHide = 2;
                             break;
@@ -75,12 +76,16 @@ public class GenerateMath : MonoBehaviour
                             size = 14;
                             maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
                             maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                            if (maxRange > 500) maxRange = 500;
+
                             maxHide = 3;
                             break;
                         case GameManager.Difficult.Hard:
                             size = 14;
                             maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
                             maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                            if (maxRange > 500) maxRange = 500;
+
                             maxHide = 3;
                             break;
                     }
@@ -88,8 +93,9 @@ public class GenerateMath : MonoBehaviour
                 break;
             case PlayerData.Chalenge.Daily:
                 size = 14;
-                maxRange = 1000;
+                maxRange = 500;
                 maxHide = 3;
+
                 break;
         }
         cellAnswer = new List<GameObject>();
@@ -98,9 +104,162 @@ public class GenerateMath : MonoBehaviour
         grid = new GameObject[size, size];
         gridModel = new string[size, size];
         values = new int[size, size];
+        up = true; down = true; left = true; right = true;
+        bool canPlay = false;
         GenerateModel();
+        while (!canPlay)
+        {
+            switch (GameManager.instance.playerData.chalenge)
+            {
+                case PlayerData.Chalenge.Easy:
+                    if (NumberOfBlank() < 2 || NumberOfBlank() > 5)
+                    {
+                        cellAnswer = new List<GameObject>();
+                        cellBlank = new List<GameObject>();
+                        dir = Directions.right;
+                        grid = new GameObject[size, size];
+                        gridModel = new string[size, size];
+                        values = new int[size, size];
+                        up = true; down = true; left = true; right = true;
+                        GenerateModel();
+                        }
+                        else
+                        {
+                            canPlay = true;
+                        }
+                    break;
+                case PlayerData.Chalenge.Medium:
+                    if (NumberOfBlank() < 6 || NumberOfBlank() > 9)
+                    {
+                        cellAnswer = new List<GameObject>();
+                        cellBlank = new List<GameObject>();
+                        dir = Directions.right;
+                        grid = new GameObject[size, size];
+                        gridModel = new string[size, size];
+                        values = new int[size, size];
+                        up = true; down = true; left = true; right = true;
+                        GenerateModel();
+                    }
+                    else
+                        {
+                        canPlay = true;
+                    }
+                    break;
+                case PlayerData.Chalenge.Hard:
+                    if (NumberOfBlank() < 10)
+                    {
+                        cellAnswer = new List<GameObject>();
+                        cellBlank = new List<GameObject>();
+                        dir = Directions.right;
+                        grid = new GameObject[size, size];
+                        gridModel = new string[size, size];
+                        values = new int[size, size];
+                        up = true; down = true; left = true; right = true;
+                        GenerateModel();
+                    }
+                    else
+                        {
+                        canPlay = true;
+                    }
+                    break;
+                case PlayerData.Chalenge.Level:
+                    {
+                        switch (level)
+                        {
+                            case GameManager.Difficult.Easy:
+                                if (NumberOfBlank() < 2 || NumberOfBlank() > 5)
+                                {
+                                    cellAnswer = new List<GameObject>();
+                                    cellBlank = new List<GameObject>();
+                                    dir = Directions.right;
+                                    grid = new GameObject[size, size];
+                                    gridModel = new string[size, size];
+                                    values = new int[size, size];
+                                    up = true; down = true; left = true; right = true;
+                                    GenerateModel();
+                                }
+                                else
+                                    {
+                                    canPlay = true;
+                                }
+                                break;
+                            case GameManager.Difficult.Medium:
+                                if (NumberOfBlank() < 6 || NumberOfBlank() > 9)
+                                {
+                                    cellAnswer = new List<GameObject>();
+                                    cellBlank = new List<GameObject>();
+                                    dir = Directions.right;
+                                    grid = new GameObject[size, size];
+                                    gridModel = new string[size, size];
+                                    values = new int[size, size];
+                                    up = true; down = true; left = true; right = true;
+                                    GenerateModel();
+                                }
+                                else
+                                    {
+                                    canPlay = true;
+                                }
+                                break;
+                            case GameManager.Difficult.Hard:
+                                if (NumberOfBlank() < 10)
+                                {
+                                    cellAnswer = new List<GameObject>();
+                                    cellBlank = new List<GameObject>();
+                                    dir = Directions.right;
+                                    grid = new GameObject[size, size];
+                                    gridModel = new string[size, size];
+                                    values = new int[size, size];
+                                    up = true; down = true; left = true; right = true;
+                                    GenerateModel();
+                                }
+                                else
+                                    {
+                                    canPlay = true;
+                                }
+                                break;
+                        }
+                    }
+                    break;
+                case PlayerData.Chalenge.Daily:
+                    if (NumberOfBlank() < 12)
+                    {
+                        cellAnswer = new List<GameObject>();
+                        cellBlank = new List<GameObject>();
+                        dir = Directions.right;
+                        grid = new GameObject[size, size];
+                        gridModel = new string[size, size];
+                        values = new int[size, size];
+                        up = true; down = true; left = true; right = true;
+                        GenerateModel();
+                    }
+                    else
+                        {
+                        canPlay = true;
+                    }
+                    break;
+            }
+        }
+
         GenerateGrid();
         SuffleAnswers();
+    }
+
+    int NumberOfBlank()
+    {
+        int count = 0;
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (gridModel[i, j] != "blank")
+                {
+                    continue;
+                }
+                count++;
+            }
+        }
+        Debug.Log("Blank: " + count);
+        return count;
     }
     public static IList<T> Swap<T>(IList<T> list, int indexA, int indexB)
     {
@@ -260,6 +419,7 @@ public class GenerateMath : MonoBehaviour
     }
     public void GenerateModel()
     {
+        Debug.Log("GenerateModel");
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)

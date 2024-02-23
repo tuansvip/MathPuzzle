@@ -30,6 +30,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 
 public class FlatCalendar : MonoBehaviour {
@@ -163,9 +164,22 @@ public class FlatCalendar : MonoBehaviour {
 		
 		// Update Calendar with Current Data
 		updateCalendar(currentTime.month,currentTime.year);
-		
+
 		// Mark Current Day
-		markSelectionDay(currentTime.day);
+		bool check = false;
+		for (int i = MenuManager.instance.playerData.daily.Length - 1; i >= 0 ; i--)
+		{
+            if (MenuManager.instance.playerData.daily[i] == false && i <= DateTime.Now.Day)
+			{
+				check = true; 
+				break;
+            }
+        }
+		
+		if (!check)
+		{
+            MenuManager.instance.playerData.day = -1;
+        }
 		
 		// Update Label Event
 		updateUiLabelEvents(currentTime.year,currentTime.month,currentTime.day);
@@ -263,7 +277,7 @@ public class FlatCalendar : MonoBehaviour {
 	/* 
 	 * Disable day slot
 	 */
-	void disableSlot(int numSlot)
+	public void disableSlot(int numSlot)
 	{
 		GameObject day_slot = GameObject.Find("Slot_"+ (numSlot));
 		day_slot.GetComponent<Button>().enabled = false;
@@ -343,7 +357,7 @@ public class FlatCalendar : MonoBehaviour {
 		label_dayNumber.GetComponent<Text>().text = "" + currentTime.day;
 	}
 
-	void unmarkSelctionDay(int day)
+	public void unmarkSelctionDay(int day)
 	{
 		GameObject day_slot = GameObject.Find("Slot_"+ (day+currentTime.dayOffset));
 
@@ -569,7 +583,7 @@ public class FlatCalendar : MonoBehaviour {
 
 	}
 
-	void evtListener_DaySelected()
+	public void evtListener_DaySelected()
 	{
 		// Unmark old slot
 		unmarkSelctionDay(currentTime.day);
