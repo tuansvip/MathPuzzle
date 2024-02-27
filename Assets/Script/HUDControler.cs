@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static GameManager;
 
 public class HUDControler : MonoBehaviour
 {
@@ -17,7 +18,9 @@ public class HUDControler : MonoBehaviour
         LevelText,
         NewGameTxt,
         Heart,
-        HintText
+        HintText,
+        MoneyText,
+        ReceiveMoney
 
     }
     public HUDState state;
@@ -73,7 +76,54 @@ public class HUDControler : MonoBehaviour
                     GetComponent<Text>().text = MenuManager.instance.playerData.hint.ToString();
                 }
                 break;
+            case HUDState.MoneyText:
+                if (SceneManager.GetActiveScene().name == "sample")
+                {
+                    GetComponent<Text>().text = GameManager.instance.playerData.money.ToString();
+                }
+                else
+                {
+                    GetComponent<Text>().text = MenuManager.instance.playerData.money.ToString();
+                }
+                break;
+            case HUDState.ReceiveMoney:
+                switch (GameManager.instance.playerData.chalenge)
+                {
+                    case PlayerData.Chalenge.Level:
+                        switch (GameManager.instance.level)
+                        {
+                            case Difficult.Easy:
+                                GetComponent<TextMeshProUGUI>().text = "+5 Coins";
 
+                                break;
+                            case Difficult.Medium:
+                                GetComponent<TextMeshProUGUI>().text = "+10 Coins";
+
+                                break;
+                            case Difficult.Hard:
+                                GetComponent<TextMeshProUGUI>().text = "+15 Coins";
+
+                                break;
+                        }
+                        break;
+                    case PlayerData.Chalenge.Daily:
+                                GetComponent<TextMeshProUGUI>().text = "+25 Coins";
+
+                        break;
+                    case PlayerData.Chalenge.Easy:
+                                GetComponent<TextMeshProUGUI>().text = "+3 Coins";
+
+                        break;
+                    case PlayerData.Chalenge.Medium:
+                        GetComponent<TextMeshProUGUI>().text = "+4 Coins";
+
+                        break;
+                    case PlayerData.Chalenge.Hard:
+                        GetComponent<TextMeshProUGUI>().text = "+7 Coins";
+
+                        break;
+                }
+                break;
         }
     }
 }

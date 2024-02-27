@@ -66,27 +66,57 @@ public class GenerateMath : MonoBehaviour
                     switch (level)
                     {
                         case GameManager.Difficult.Easy:
-                            size = 8;
-                            maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
-                            if (maxRange > 500) maxRange = 500;
-                            maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
-                            maxHide = 2;
+                            if (GameManager.instance.playerData.currentLevel < 50)
+                            {
+                                size = 5;
+                                maxRange = 20 + GameManager.instance.playerData.currentLevel;
+                                if (maxRange > 500) maxRange = 500;
+                                maxValue = 200 + GameManager.instance.playerData.currentLevel;
+                                maxHide = 2;
+
+                            } else
+                            {
+                                size = 8;
+                                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                                if (maxRange > 500) maxRange = 500;
+                                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                                maxHide = 2;
+                            }
                             break;
                         case GameManager.Difficult.Medium:
-                            size = 14;
-                            maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
-                            maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
-                            if (maxRange > 500) maxRange = 500;
-
-                            maxHide = 3;
+                            if (GameManager.instance.playerData.currentLevel < 50)
+                            {
+                                size = 10;
+                                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                                if (maxRange > 500) maxRange = 500;
+                                maxHide = 3;
+                            } else
+                            {
+                                size = 14;
+                                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                                if (maxRange > 500) maxRange = 500;
+                                maxHide = 3;
+                            }
                             break;
                         case GameManager.Difficult.Hard:
-                            size = 14;
-                            maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
-                            maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
-                            if (maxRange > 500) maxRange = 500;
+                            if (GameManager.instance.playerData.currentLevel < 50)
+                            {
+                                size = 10;
+                                maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
+                                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                                if (maxRange > 500) maxRange = 500;
+                                maxHide = 3;
+                            } else
+                            {
+                                size = 14;
+                                maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
+                                maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
+                                if (maxRange > 500) maxRange = 500;
+                                maxHide = 3;
+                            }
 
-                            maxHide = 3;
                             break;
                     }
                 }
@@ -122,11 +152,11 @@ public class GenerateMath : MonoBehaviour
                         values = new int[size, size];
                         up = true; down = true; left = true; right = true;
                         GenerateModel();
-                        }
-                        else
-                        {
-                            canPlay = true;
-                        }
+                    }
+                    else
+                    {
+                        canPlay = true;
+                    }
                     break;
                 case PlayerData.Chalenge.Medium:
                     if (NumberOfBlank() < 6 || NumberOfBlank() > 9)
@@ -167,54 +197,115 @@ public class GenerateMath : MonoBehaviour
                         switch (level)
                         {
                             case GameManager.Difficult.Easy:
-                                if (NumberOfBlank() < 2 || NumberOfBlank() > 5)
+                                if (GameManager.instance.playerData.currentLevel < 50)
                                 {
-                                    cellAnswer = new List<GameObject>();
-                                    cellBlank = new List<GameObject>();
-                                    dir = Directions.right;
-                                    grid = new GameObject[size, size];
-                                    gridModel = new string[size, size];
-                                    values = new int[size, size];
-                                    up = true; down = true; left = true; right = true;
-                                    GenerateModel();
-                                }
-                                else
+                                    if (NumberOfBlank() < 1 || NumberOfBlank() > 3)
                                     {
-                                    canPlay = true;
+                                        cellAnswer = new List<GameObject>();
+                                        cellBlank = new List<GameObject>();
+                                        dir = Directions.right;
+                                        grid = new GameObject[size, size];
+                                        gridModel = new string[size, size];
+                                        values = new int[size, size];
+                                        up = true; down = true; left = true; right = true;
+                                        GenerateModel();
+                                    }
+                                    else
+                                    {
+                                        canPlay = true;
+                                    }
+                                } else
+                                {
+                                    if (NumberOfBlank() < 2 || NumberOfBlank() > 5)
+                                    {
+                                        cellAnswer = new List<GameObject>();
+                                        cellBlank = new List<GameObject>();
+                                        dir = Directions.right;
+                                        grid = new GameObject[size, size];
+                                        gridModel = new string[size, size];
+                                        values = new int[size, size];
+                                        up = true; down = true; left = true; right = true;
+                                        GenerateModel();
+                                    }
+                                    else
+                                    {
+                                        canPlay = true;
+                                    }
                                 }
                                 break;
                             case GameManager.Difficult.Medium:
-                                if (NumberOfBlank() < 6 || NumberOfBlank() > 9)
+                                if (GameManager.instance.playerData.currentLevel < 50)
                                 {
-                                    cellAnswer = new List<GameObject>();
-                                    cellBlank = new List<GameObject>();
-                                    dir = Directions.right;
-                                    grid = new GameObject[size, size];
-                                    gridModel = new string[size, size];
-                                    values = new int[size, size];
-                                    up = true; down = true; left = true; right = true;
-                                    GenerateModel();
-                                }
-                                else
+                                    if (NumberOfBlank() < 4 || NumberOfBlank() > 6)
                                     {
-                                    canPlay = true;
+                                        cellAnswer = new List<GameObject>();
+                                        cellBlank = new List<GameObject>();
+                                        dir = Directions.right;
+                                        grid = new GameObject[size, size];
+                                        gridModel = new string[size, size];
+                                        values = new int[size, size];
+                                        up = true; down = true; left = true; right = true;
+                                        GenerateModel();
+                                    }
+                                    else
+                                    {
+                                        canPlay = true;
+                                    }
+                                } else
+                                {
+                                    if (NumberOfBlank() < 6 || NumberOfBlank() > 9)
+                                    {
+                                        cellAnswer = new List<GameObject>();
+                                        cellBlank = new List<GameObject>();
+                                        dir = Directions.right;
+                                        grid = new GameObject[size, size];
+                                        gridModel = new string[size, size];
+                                        values = new int[size, size];
+                                        up = true; down = true; left = true; right = true;
+                                        GenerateModel();
+                                    }
+                                    else
+                                    {
+                                        canPlay = true;
+                                    }
                                 }
                                 break;
                             case GameManager.Difficult.Hard:
-                                if (NumberOfBlank() < 10)
+                                if (GameManager.instance.playerData.currentLevel < 50)
                                 {
-                                    cellAnswer = new List<GameObject>();
-                                    cellBlank = new List<GameObject>();
-                                    dir = Directions.right;
-                                    grid = new GameObject[size, size];
-                                    gridModel = new string[size, size];
-                                    values = new int[size, size];
-                                    up = true; down = true; left = true; right = true;
-                                    GenerateModel();
+                                    if (NumberOfBlank() < 7)
+                                    {
+                                        cellAnswer = new List<GameObject>();
+                                        cellBlank = new List<GameObject>();
+                                        dir = Directions.right;
+                                        grid = new GameObject[size, size];
+                                        gridModel = new string[size, size];
+                                        values = new int[size, size];
+                                        up = true; down = true; left = true; right = true;
+                                        GenerateModel();
+                                    }
+                                    else
+                                    {
+                                        canPlay = true;
+                                    }
                                 }
                                 else
+                                {
+                                    if (NumberOfBlank() < 10)
                                     {
-                                    canPlay = true;
+                                        cellAnswer = new List<GameObject>();
+                                        cellBlank = new List<GameObject>();
+                                        dir = Directions.right;
+                                        grid = new GameObject[size, size];
+                                        gridModel = new string[size, size];
+                                        values = new int[size, size];
+                                        up = true; down = true; left = true; right = true;
+                                        GenerateModel();
+                                    }
+                                    else
+                                    {
+                                        canPlay = true;
+                                    }
                                 }
                                 break;
                         }
@@ -837,7 +928,8 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = (values[posX[0], posY[0]] * values[posX[2], posY[2]]);
                         break;
                     case "/":
-                        if (values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0)
+                        if (values[posX[0], posY[0]] == 1 || values[posX[2], posY[2]] == 1) continue;
+                        if (values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0 && values[posX[2], posY[2]] != 0)
                         {
                             values[posX[4], posY[4]] = (values[posX[0], posY[0]] + values[posX[2], posY[2]]);
                             gridModel[posX[1], posY[1]] = "+";
@@ -869,7 +961,7 @@ public class GenerateMath : MonoBehaviour
             } while (!isdone);
         }
         else
-        if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[2], posY[2]] == "empty")
+        if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] != "empty")
         {
             gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
@@ -888,14 +980,16 @@ public class GenerateMath : MonoBehaviour
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] + values[posX[2], posY[2]];
                         break;
                     case "*":
+                        if (values[posX[4], posY[4]] == 1 || IsPrime(values[posX[4], posY[4]])) continue;
                         do
                         {
-                            values[posX[2], posY[2]] = Random.Range(1, maxRange);
+                            values[posX[2], posY[2]] = Random.Range(2, maxRange);
                         } while (values[posX[4], posY[4]] % values[posX[2], posY[2]] != 0);
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] / values[posX[2], posY[2]];
                         break;
                     case "/":
                         values[posX[2], posY[2]] = Random.Range(2, 6);
+                       
                         if (values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue) continue;
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] * values[posX[2], posY[2]];
                         break;
@@ -930,7 +1024,7 @@ public class GenerateMath : MonoBehaviour
             }while (!isdone);
         }
         else
-        if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
+        if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[4], posY[4]] == "empty" && gridModel[posX[2], posY[2]] != "empty")
         {
             gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
@@ -949,10 +1043,11 @@ public class GenerateMath : MonoBehaviour
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) + int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
                     case "*":
+                        if (int.Parse(gridModel[posX[2], posY[2]]) == 1 || IsPrime(int.Parse(gridModel[posX[2], posY[2]]))) continue;
                         do
                         {
-                            gridModel[posX[4], posY[4]] = Random.Range(1, maxRange).ToString();
-                        } while (int.Parse(gridModel[posX[4], posY[4]]) % int.Parse(gridModel[posX[2], posY[2]]) != 0);
+                            gridModel[posX[4], posY[4]] = Random.Range(2, maxRange).ToString();
+                        } while (int.Parse(gridModel[posX[4], posY[4]]) % int.Parse(gridModel[posX[2], posY[2]]) != 0 || int.Parse(gridModel[posX[4], posY[4]]) == 1);
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) / int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
                     case "/":
@@ -1013,9 +1108,10 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] * values[posX[2], posY[2]];
                         break;
                     case "/":
+                        if (values[posX[0], posY[0]] == 1 || IsPrime(values[posX[0], posY[0]])) continue;
                         do
                         {
-                            values[posX[2], posY[2]] = Random.Range(1, maxRange);
+                            values[posX[2], posY[2]] = Random.Range(2, maxRange);
                         } while (values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0);
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] / values[posX[2], posY[2]];
                         break;
@@ -1050,7 +1146,7 @@ public class GenerateMath : MonoBehaviour
             } while (!isdone);
         }
         else
-        if (gridModel[posX[0], posY[0]] == "empty")
+        if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[2], posY[2]] != "empty" && gridModel[posX[0], posY[0]] != "empty")
         {
             gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
@@ -1067,6 +1163,7 @@ public class GenerateMath : MonoBehaviour
                         values[posX[0], posY[0]] = values[posX[2], posY[2]] + values[posX[4], posY[4]];
                         break;
                     case "*":
+                        if (values[posX[2], posY[2]] == 0 || values[posX[2], posY[2]] == 1 || values[posX[4], posY[4]] == 1 || IsPrime(values[posX[4], posY[4]])) continue;
                         if (values[posX[4], posY[4]] % values[posX[2], posY[2]] != 0)
                         {
                             values[posX[0], posY[0]] = values[posX[4], posY[4]] + values[posX[2], posY[2]];
@@ -1132,6 +1229,8 @@ public class GenerateMath : MonoBehaviour
                             values[posX[2], posY[2]] = values[posX[0], posY[0]] - values[posX[4], posY[4]];
                             break;
                         case "*":
+                            if (values[posX[0], posY[0]] == 0 || values[posX[0], posY[0]] == 1 || values[posX[4], posY[4]] == 1 || IsPrime(values[posX[4], posY[4]])) continue;
+
                             if (values[posX[4], posY[4]] % values[posX[0], posY[0]] != 0)
                             {
                                 if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
@@ -1145,6 +1244,8 @@ public class GenerateMath : MonoBehaviour
                             }
                             break;
                         case "/":
+                            if (values[posX[4], posY[4]] == 0 || values[posX[4], posY[4]] == 1 || values[posX[0], posY[0]] == 1 || IsPrime(values[posX[0], posY[0]])) continue;
+
                             if (values[posX[0], posY[0]] % values[posX[4], posY[4]] != 0)
                             {
                                 if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
@@ -1259,7 +1360,7 @@ public class GenerateMath : MonoBehaviour
             }
         }
         else
-        if (gridModel[posX[4], posY[4]] == "empty")
+        if (gridModel[posX[4], posY[4]] == "empty" && gridModel[posX[2], posY[2]] != "empty" && gridModel[posX[0], posY[0]] != "empty")
         {
             gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
@@ -1280,6 +1381,7 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] * values[posX[2], posY[2]];
                         break;
                     case "/":
+                        if (values[posX[2], posY[2]] == 1 || values[posX[2], posY[2]] == 0 || values[posX[0], posY[0]] == 1 || IsPrime(values[posX[0], posY[0]])) continue;
                         if (values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0 || values[posX[2], posY[2]] == 0)
                         {
                             values[posX[4], posY[4]] = values[posX[0], posY[0]] + values[posX[2], posY[2]];
@@ -1364,7 +1466,24 @@ public class GenerateMath : MonoBehaviour
         }
         return "+";
     }
+    static bool IsPrime(int number)
+    {
+        if (number <= 1)
+            return false;
+        if (number <= 3)
+            return true;
 
+        if (number % 2 == 0 || number % 3 == 0)
+            return false;
+
+        for (int i = 5; i * i <= number; i += 6)
+        {
+            if (number % i == 0 || number % (i + 2) == 0)
+                return false;
+        }
+
+        return true;
+    }
 
 }
 

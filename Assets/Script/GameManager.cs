@@ -180,20 +180,40 @@ public class GameManager : MonoBehaviour
     {
         SFXManager.instance.PlayWin();
         isStart = false;
-        switch (level)
+        switch (playerData.chalenge)
         {
-            case Difficult.Easy:
-                playerData.money += 5;
-                SavePlayerData(playerData);
-                
+            case PlayerData.Chalenge.Level:
+                switch (level)
+                {
+                    case Difficult.Easy:
+                        playerData.money += 5;
+                        SavePlayerData(playerData);
+
+                        break;
+                    case Difficult.Medium:
+                        playerData.money += 10;
+                        SavePlayerData(playerData);
+                        break;
+                    case Difficult.Hard:
+                        playerData.money += 15;
+                        SavePlayerData(playerData);
+                        break;
+                }
                 break;
-            case Difficult.Medium:
-                playerData.money += 10;
+            case PlayerData.Chalenge.Daily:
+                playerData.money += 25;
                 SavePlayerData(playerData);
                 break;
-            case Difficult.Hard:
-                playerData.money += 15;
-                playerData.hint++;
+            case PlayerData.Chalenge.Easy:
+                playerData.money += 3;
+                SavePlayerData(playerData);
+                break;
+            case PlayerData.Chalenge.Medium:
+                playerData.money += 4;
+                SavePlayerData(playerData);
+                break;
+            case PlayerData.Chalenge.Hard:
+                playerData.money += 7;
                 SavePlayerData(playerData);
                 break;
         }
@@ -311,7 +331,7 @@ public class GameManager : MonoBehaviour
     }
     public void Hint()
     {
-        if (playerData.hint > 1)
+        if (playerData.money > 75)
         {
             List<GameObject> listAns = new List<GameObject>();
             for (int i = 0; i < ansSpawn.transform.childCount; i++)
@@ -341,7 +361,7 @@ public class GameManager : MonoBehaviour
             Color originalColor = ans.GetComponent<Answer>().bgColor;
             ans.transform.DOMove(targerTransform.position + Vector3.back * 2, 1f);
             ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1.5f);
-            playerData.hint--;
+            playerData.money -= 75;
         }
         else
         {
@@ -365,26 +385,53 @@ public class GameManager : MonoBehaviour
     }
     public void X2Coin()
     {
-        switch(level)
+        switch (playerData.chalenge)
         {
-            case Difficult.Easy:
-                playerData.money += 5;
+            case PlayerData.Chalenge.Level:
+                switch (level)
+                {
+                    case Difficult.Easy:
+                        playerData.money += 5;
+                        SavePlayerData(playerData);
+
+                        break;
+                    case Difficult.Medium:
+                        playerData.money += 10;
+                        SavePlayerData(playerData);
+                        break;
+                    case Difficult.Hard:
+                        playerData.money += 15;
+                        SavePlayerData(playerData);
+                        break;
+                }
                 break;
-            case Difficult.Medium:
-                playerData.money += 10;
+            case PlayerData.Chalenge.Daily:
+                playerData.money += 25;
+                SavePlayerData(playerData);
                 break;
-            case Difficult.Hard:
-                playerData.money += 15;
+            case PlayerData.Chalenge.Easy:
+                playerData.money += 3;
+                SavePlayerData(playerData);
+                break;
+            case PlayerData.Chalenge.Medium:
+                playerData.money += 4;
+                SavePlayerData(playerData);
+                break;
+            case PlayerData.Chalenge.Hard:
+                playerData.money += 7;
+                SavePlayerData(playerData);
                 break;
         }
+        SavePlayerData(playerData);
         x2CoinBtn.GetComponent<Button>().interactable = false;
     }
     public void Ads45S()
     {
+        Time.timeScale = 1;
+        isStart = true;
         losePanel.SetActive(false);
         playzoneobj.SetActive(true);
         pool.SetActive(true);
-        Time.timeScale = 1;
         time += 45;
     }
 } 
@@ -408,6 +455,7 @@ public class PlayerData
     public bool isSoundOn;
     public bool isVibrateOn;
     public int day;
+    public int month = 0;
     public bool[] daily;
     public PlayerData(int currentLevel, Chalenge chalenge, int money, int hint, bool noAds, bool isMusicOn, bool isSoundOn, bool isVibrateOn, int day)
     {

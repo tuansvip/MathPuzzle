@@ -48,9 +48,20 @@ public class MenuManager : MonoBehaviour
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         Application.targetFrameRate = 144;
         playerData = LoadPlayerData();
+        if (playerData.month != DateTime.Now.Month)
+        {
+            playerData.month = DateTime.Now.Month;
+            playerData.daily = new bool[37];
+            for (int i = 0; i < 37; i++)
+            {
+                playerData.daily[i] = false;
+            }
+            SavePlayerData(playerData);
+        }
         musicSwitch.isOn = playerData.isMusicOn;
         soundSwitch.isOn = playerData.isSoundOn;
         vibrateSwitch.isOn = playerData.isVibrateOn;
+        
         shopPanel.GetComponent<RectTransform>().localPosition = Vector3.left * 10000;
         dailyPanel.GetComponent<RectTransform>().localPosition = Vector3.right * 10000;
         homeButton.GetComponent<Image>().color = Color.red;
