@@ -12,6 +12,7 @@ public class Answer : MonoBehaviour
     bool isDragging = false;
     public bool isOnBlank = false;
     public bool isOnOtherAns = false;
+    public bool isCorrect = false;
     public Vector3 startPosition;
     public Vector3 targetPosition;
     Vector3 blankPosition;
@@ -27,6 +28,7 @@ public class Answer : MonoBehaviour
     {
         startPosition = transform.position;
         targetPosition = startPosition;
+
     }
     //Drag and Drop
     private void OnMouseDown()
@@ -139,11 +141,15 @@ public class Answer : MonoBehaviour
         {
             isOnOtherAns = false;
         }
-        if (collision.gameObject.tag == "BlankCell")
+        
+        if (collision.gameObject.tag == "BlankCell" && !isOnOtherAns)
         {
             isOnBlank = false;
             if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isOnOtherAns)
-                GameManager.instance.check[blankX, blankY] = false;
+            {
+/*                GameManager.instance.check[blankX, blankY] = false;*/
+                isCorrect = false;
+            }
         }
     }
     private void OnTriggerStay2D(Collider2D collision)
@@ -159,7 +165,8 @@ public class Answer : MonoBehaviour
             blank = collision.gameObject.transform;
             if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isDragging)
             {
-                GameManager.instance.check[blankX, blankY] = true;
+/*                GameManager.instance.check[blankX, blankY] = true;*/
+                isCorrect = true;
 
             }
 
@@ -178,22 +185,24 @@ public class Answer : MonoBehaviour
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = -6;
             transform.position =  mousePosition + Vector3.up * 2;
+
         }
         else
         {
             if (isOnBlank)
             {
                 transform.DOScale(GameManager.instance.spawnParent.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
+                transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
             }
             else
             {
                 transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
+
             }
             if (targetPosition == startPosition)
             {
                 background.color = bgColor;
             }
-            transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
         }
     }
 }

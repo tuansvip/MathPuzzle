@@ -20,11 +20,12 @@ public class HUDControler : MonoBehaviour
         Heart,
         HintText,
         MoneyText,
-        ReceiveMoney
+        ReceiveMoney,
+        DifText,
+        DifImage
 
     }
     public HUDState state;
-
     private void Update()
     {
         switch (state)
@@ -44,17 +45,17 @@ public class HUDControler : MonoBehaviour
             case HUDState.HighscoreHard:
                 break;
             case HUDState.LevelText:
-                if (SceneManager.GetActiveScene().name == "sample")
+                if (SceneManager.GetActiveScene().name == "sample"|| SceneManager.GetActiveScene().name == "level")
                 {
-                    if (GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Level)
+                    if (GameManager.instance.playerData.challenge == PlayerData.Challenge.Level)
                         GetComponent<TextMeshProUGUI>().text = "Level " + GameManager.instance.playerData.currentLevel;
-                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Daily)
-                        GetComponent<TextMeshProUGUI>().text = "Daily Chalenge";
-                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Hard) 
+                    else if(GameManager.instance.playerData.challenge == PlayerData.Challenge.Daily)
+                        GetComponent<TextMeshProUGUI>().text = "Daily Challenge";
+                    else if(GameManager.instance.playerData.challenge == PlayerData.Challenge.Hard) 
                         GetComponent<TextMeshProUGUI>().text = "Hard";
-                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Medium) 
+                    else if(GameManager.instance.playerData.challenge == PlayerData.Challenge.Medium) 
                         GetComponent<TextMeshProUGUI>().text = "Medium";
-                    else if(GameManager.instance.playerData.chalenge == PlayerData.Chalenge.Easy) 
+                    else if(GameManager.instance.playerData.challenge == PlayerData.Challenge.Easy) 
                         GetComponent<TextMeshProUGUI>().text = "Easy";
                 }
                 else
@@ -77,7 +78,7 @@ public class HUDControler : MonoBehaviour
                 }
                 break;
             case HUDState.MoneyText:
-                if (SceneManager.GetActiveScene().name == "sample")
+                if (SceneManager.GetActiveScene().name == "sample" || SceneManager.GetActiveScene().name == "level")
                 {
                     GetComponent<Text>().text = GameManager.instance.playerData.money.ToString();
                 }
@@ -87,9 +88,9 @@ public class HUDControler : MonoBehaviour
                 }
                 break;
             case HUDState.ReceiveMoney:
-                switch (GameManager.instance.playerData.chalenge)
+                switch (GameManager.instance.playerData.challenge)
                 {
-                    case PlayerData.Chalenge.Level:
+                    case PlayerData.Challenge.Level:
                         switch (GameManager.instance.level)
                         {
                             case Difficult.Easy:
@@ -106,21 +107,49 @@ public class HUDControler : MonoBehaviour
                                 break;
                         }
                         break;
-                    case PlayerData.Chalenge.Daily:
+                    case PlayerData.Challenge.Daily:
                                 GetComponent<TextMeshProUGUI>().text = "+25 Coins";
 
                         break;
-                    case PlayerData.Chalenge.Easy:
+                    case PlayerData.Challenge.Easy:
                                 GetComponent<TextMeshProUGUI>().text = "+3 Coins";
 
                         break;
-                    case PlayerData.Chalenge.Medium:
+                    case PlayerData.Challenge.Medium:
                         GetComponent<TextMeshProUGUI>().text = "+4 Coins";
 
                         break;
-                    case PlayerData.Chalenge.Hard:
+                    case PlayerData.Challenge.Hard:
                         GetComponent<TextMeshProUGUI>().text = "+7 Coins";
 
+                        break;
+                }
+                break;
+            case HUDState.DifText:
+                switch (MenuManager.instance.selectedLevel)
+                {
+                    case 3:
+                        GetComponent<TextMeshProUGUI>().text = "Easy";
+                        break;
+                    case 4:
+                        GetComponent<TextMeshProUGUI>().text = "Normal";
+                        break;
+                    case 5:
+                        GetComponent<TextMeshProUGUI>().text = "Hard";
+                        break;
+                }
+                break;
+            case HUDState.DifImage:
+                switch (MenuManager.instance.selectedLevel) 
+                {                     
+                    case 3:
+                        GetComponent<Image>().sprite = MenuManager.instance.easyImg;
+                        break;
+                    case 4:
+                        GetComponent<Image>().sprite = MenuManager.instance.normalImg;
+                        break;
+                    case 5:
+                        GetComponent<Image>().sprite = MenuManager.instance.hardImg;
                         break;
                 }
                 break;

@@ -28,7 +28,7 @@ public class FlatCalendarStyle
 	/*
 	 * UI Colors Configuration 
 	 */
-	public enum COLORS_TYPE { GREEN_SEA, RED_CARPET, ORANGE_JUICE, GOOGLE_MATERIAL};
+	public enum COLORS_TYPE { GREEN_SEA, RED_CARPET, ORANGE_JUICE, GOOGLE_MATERIAL, TUANPHAM};
 
 	/*
 	 * Single UI Colors Items
@@ -131,25 +131,26 @@ public class FlatCalendarStyle
 		// ======================================================
 		if(style == (int) FlatCalendarStyle.COLORS_TYPE.GOOGLE_MATERIAL)
 		{
-			color_header     			= new Color(  33.0f/255.0f,150.0f/255.0f,243.0f/255.0f,255.0f/255.0f);
-			color_subheader				= new Color(0.0f/255.0f,112.0f/255.0f,128.0f/255.0f,255.0f/255.0f);
-			color_body 					= new Color(255.0f/255.0f, 255.0f/255.0f, 255.0f/255.0f,255.0f/255.0f);
+			color_header     			= hexToRGBA("#E8E6FF");
+			color_subheader				= hexToRGBA("#C8C4F4");
+			color_body 					= hexToRGBA("#F1F9FE");
 			color_footer 				= new Color( 67.0f/255.0f, 77.0f/255.0f, 87.0f/255.0f,255.0f/255.0f);
 			color_dayTextNormal			= new Color(0.0f/255.0f,0.0f/255.0f,0.0f/255.0f,255.0f/255.0f);
 			color_dayTextEvent			= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
 			color_bubbleEvent			= new Color(21.0f/255.0f,101.0f/255.0f,192.0f/255.0f,255.0f/255.0f);
 			color_bubbleSelectionMarker	= new Color(21.0f/255.0f,101.0f/255.0f,192.0f/255.0f,255.0f/255.0f);
 			color_numberEvent			= new Color(238.0f/255.0f,105.0f/255.0f,105.0f/255.0f,255.0f/255.0f);
-			color_year					= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
-			color_month					= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
-			color_day					= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);;
-			color_dayOfWeek				= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
-			color_Events				= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
+			color_year					= hexToRGBA("#514A9C");
+			color_month					= hexToRGBA("#514A9C");
+            color_day					= hexToRGBA("#514A9C");
+            color_dayOfWeek				= hexToRGBA("#514A9C");
+            color_Events				= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
 			color_ButtonRight			= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
 			color_ButtonLeft			= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
 			color_Home					= new Color(255.0f/255.0f,255.0f/255.0f,255.0f/255.0f,255.0f/255.0f);
 		}
 
+		
 		/* Change Colors */
 		GameObject.Find("Header").GetComponent<Image>().color       = color_header;
 		GameObject.Find("SubHeader").GetComponent<Image>().color    = color_subheader;
@@ -175,4 +176,11 @@ public class FlatCalendarStyle
 			f.markSelectionDay(f.currentTime.day);
 		}
 	}
+	public static Color hexToRGBA(string hex)
+	{
+        Color color = new Color();
+        ColorUtility.TryParseHtmlString(hex, out color);
+        return color;
+    }
+
 }
