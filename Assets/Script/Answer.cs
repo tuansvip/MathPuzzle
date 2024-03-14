@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 public class Answer : MonoBehaviour
 {
-    bool isDragging = false;
+    public bool isDragging = false;
     public bool isOnBlank = false;
     public bool isOnOtherAns = false;
     public bool isCorrect = false;
@@ -27,6 +27,10 @@ public class Answer : MonoBehaviour
     private void Awake()
     {
         startPosition = transform.position;
+        if (GameManager.instance.IsMobile())
+        {
+            startPosition *= Camera.main.orthographicSize * 2 * Camera.main.aspect / 10;
+        }
         targetPosition = startPosition;
 
     }
@@ -105,7 +109,7 @@ public class Answer : MonoBehaviour
 
         } else if(!isOnBlank)
         {
-            SetTarget(startPosition + Vector3.back);
+            SetTarget(startPosition);
             background.color = bgColor;
             transform.localScale = Vector3.one;
         }
@@ -142,7 +146,7 @@ public class Answer : MonoBehaviour
             isOnOtherAns = false;
         }
         
-        if (collision.gameObject.tag == "BlankCell" && !isOnOtherAns)
+        if (collision.gameObject.tag == "BlankCell")
         {
             isOnBlank = false;
             if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isOnOtherAns)
@@ -185,7 +189,7 @@ public class Answer : MonoBehaviour
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = -6;
             transform.position =  mousePosition + Vector3.up * 2;
-
+            background.color = bgColor;
         }
         else
         {
@@ -197,10 +201,11 @@ public class Answer : MonoBehaviour
             else
             {
                 transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
-
+                transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
+                background.color = bgColor;
             }
-            if (targetPosition == startPosition)
-            {
+            if (targetPosition == startPosition)            {
+                transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
                 background.color = bgColor;
             }
         }

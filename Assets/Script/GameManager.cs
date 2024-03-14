@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -37,6 +38,7 @@ public class GameManager : MonoBehaviour
     public GameObject playHUD;
     public GameObject winPanel;
     public GameObject pausePanel;
+    public GameObject supportPanel;
     public GameObject ansSpawn;
     public GameObject spawn;
     public GameObject spawnParent;
@@ -54,6 +56,7 @@ public class GameManager : MonoBehaviour
     public GameObject blankPrefab;
     public GameObject numberPrefab;
     public GameObject opPrefab;
+    public GameObject _75coinPrefab;
 
 
     [Header("#Game Component")]
@@ -64,15 +67,17 @@ public class GameManager : MonoBehaviour
     public Difficult level;
     public float time;
     public bool isHighscore;
+    public bool hintMoving = false;
 
     public bool isSorted = false;
     bool isStart = false;
     private string savePath;
     string encryptKey = "iamnupermane4133bbce2ea2315a1916";
-   
-
+    public bool isPause = false;
+    int loseCount;
     private void Awake()
     {
+        loseCount = 0;
         if (instance == null)
         {
             instance = this;
@@ -138,7 +143,7 @@ public class GameManager : MonoBehaviour
         }
         Debug.Log(playerData.challenge);
         Debug.Log(playerData.currentLevel);
-
+        Debug.Log("Width " + Screen.width + " Heigh " + Screen.height + "\n" + Camera.main.orthographicSize);
         isStart = true;
         //auto generate level
 /*        if (SceneManager.GetActiveScene().name == "sample" && playerData.challenge == PlayerData.Challenge.Level && playerData.currentLevel < 2005)
@@ -148,7 +153,25 @@ public class GameManager : MonoBehaviour
         }*/
         //
     }
+    public bool IsMobile()
+    {
+        float screenRatio = (float)Screen.height / (float)Screen.width;
 
+        // Xác định loại thiết bị dựa trên kích thước màn hình
+        if (screenRatio < 1.77f)
+        {
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public void ResizeGameplay()
+    {
+        float cameraWidth = Camera.main.orthographicSize * 2 * Camera.main.aspect;     
+        gameplay.transform.localScale = new Vector3(cameraWidth / 10, cameraWidth / 10, 1);
+    }
 
     static bool CheckLevelExistence(string name)
     {
@@ -190,7 +213,6 @@ public class GameManager : MonoBehaviour
         playzone.values = levelModel.ArrayValue;
     }
 
-
     public void AddState()
     {
         answerPositionHistory.Push(ansSpawn.GetComponentsInChildren<Answer>().Select(x => x.targetPosition).ToList());
@@ -209,7 +231,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
      
-        if (!isStart) return;
+        if (!isStart || isPause) return;
         time -= Time.deltaTime;
         if (checkWin())
         {
@@ -221,8 +243,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-
     private void Defeat()
     {
         SFXManager.instance.PlayLose();
@@ -231,6 +251,13 @@ public class GameManager : MonoBehaviour
         playzoneobj.SetActive(false);
         pool.SetActive(false);
         losePanel.SetActive(true);
+        if (loseCount > 0)
+        {
+            GameObject.Find("Buy +60s").GetComponent<Button>().onClick.RemoveListener(Buy60s);
+            GameObject.Find("Buy +60s").GetComponent<Button>().onClick.AddListener(Home);
+            GameObject.Find("+60s Text").GetComponent<TextMeshProUGUI>().text = "Home";
+            GameObject.Find("+45s").GetComponent<Button>().interactable = false;
+        }
     }
 
     public void Victory()
@@ -279,7 +306,7 @@ public class GameManager : MonoBehaviour
                 SavePlayerData(playerData);
                 break;
         }
-        Time.timeScale = 0;
+        isPause = true;
         playzoneobj.SetActive(false);
         pool.SetActive(false);
         playHUD.SetActive(false);
@@ -290,6 +317,7 @@ public class GameManager : MonoBehaviour
         }
         SavePlayerData(playerData);
         winPanel.SetActive(true);
+        StartCoroutine(MoveMoney(10, GameObject.Find("CoinWin").GetComponent<RectTransform>()));
     }
     public void NextLevel()
     {
@@ -367,21 +395,19 @@ public class GameManager : MonoBehaviour
     }
     public void Pause()
     {
+        isPause = true;
         SFXManager.instance.PlayClick();
-        Time.timeScale = 0;
-        playzoneobj.SetActive(false);
-        pool.SetActive(false);
-        playHUD.SetActive(false);
+        Time.timeScale = 1;
         pausePanel.SetActive(true);
     }
     public void Resume()
     {
+        isPause = false;
         SFXManager.instance.PlayClick();
-        Time.timeScale = 1;
-        playzoneobj.SetActive(true);
-        pool.SetActive(true);
-        playHUD.SetActive(true);
+        Time.timeScale = 1;;
         pausePanel.SetActive(false);
+        supportPanel.SetActive(false);
+        losePanel.SetActive(false);
     }
 
     public void SaveSetting()
@@ -393,8 +419,9 @@ public class GameManager : MonoBehaviour
     }
     public void Hint()
     {
-        if (playerData.money > 75)
+        if (playerData.money >= 75 && !hintMoving)
         {
+            hintMoving = true;
             List<GameObject> listAns = new List<GameObject>();
             for (int i = 0; i < ansSpawn.transform.childCount; i++)
             {
@@ -422,15 +449,82 @@ public class GameManager : MonoBehaviour
             }
             Color originalColor = ans.GetComponent<Answer>().bgColor;
             ans.transform.DOMove(targerTransform.position + Vector3.back * 2, 1f);
-            ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1.5f);
+            ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1.5f).OnComplete(()=> hintMoving = false);
             playerData.money -= 75;
+            GameObject minus75 = Instantiate(_75coinPrefab, GameObject.Find("MoneyGameplay").transform);
+            minus75.GetComponent<RectTransform>().position = GameObject.Find("MoneyGameplay").GetComponent<RectTransform>().position;
+            minus75.GetComponent<RectTransform>().DOMove(minus75.GetComponent<RectTransform>().position + Vector3.down, 1f);
+            minus75.GetComponent<Text>().DOColor(new Color(255, 0, 0, 0), 1f).OnComplete(() => Destroy(minus75));
         }
-        else
+        if (playerData.money < 75)
         {
-
+            isPause = true;
+            SFXManager.instance.PlayClick();
+            Time.timeScale = 1;
+            supportPanel.SetActive(true);
         }
 
         SavePlayerData(playerData);
+    }
+    public void HintAds()
+    {
+        //ADs here
+        Resume();
+        List<GameObject> listAns = new List<GameObject>();
+        for (int i = 0; i < ansSpawn.transform.childCount; i++)
+        {
+            listAns.Add(ansSpawn.transform.GetChild(i).gameObject);
+        }
+        GameObject ans = listAns[0];
+        foreach (GameObject answer in listAns)
+        {
+            if (!answer.GetComponent<Answer>().isOnBlank)
+            {
+                ans = answer;
+                break;
+            }
+        }
+        List<GameObject> listobj = playzone.GetComponent<GenerateMath>().grid.Cast<GameObject>().ToList();
+        Transform originalTransform = ans.transform;
+        Transform targerTransform = ans.transform;
+        foreach (GameObject obj in listobj)
+        {
+            if (obj != null && obj.CompareTag("BlankCell") && obj.GetComponent<Blank>().value == ans.GetComponent<Number>().value && !obj.GetComponent<Blank>().isOnAnswer)
+            {
+                targerTransform = obj.transform;
+                break;
+            }
+        }
+        Color originalColor = ans.GetComponent<Answer>().bgColor;
+        ans.transform.DOMove(targerTransform.position + Vector3.back * 2, 1f);
+        ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1.5f);
+    }
+    public void BuySupport()
+    {
+        Time.timeScale = 1;
+        isStart = true;
+        losePanel.SetActive(false);
+        playzoneobj.SetActive(true);
+        pool.SetActive(true);
+        time += 60;
+        loseCount++;
+        StartCoroutine(HintAfterBuySupport());
+    }
+    private IEnumerator HintAfterBuySupport()
+    {
+        yield return new WaitForSeconds(0.2f);
+        HintAds();
+    }
+    
+    public void Buy60s()
+    {
+        Time.timeScale = 1;
+        isStart = true;
+        losePanel.SetActive(false);
+        playzoneobj.SetActive(true);
+        pool.SetActive(true);
+        time+= 60;
+        loseCount++;
     }
     public void Sorting()
     {
@@ -486,6 +580,10 @@ public class GameManager : MonoBehaviour
         }
         SavePlayerData(playerData);
         x2CoinBtn.GetComponent<Button>().interactable = false;
+        x2CoinBtn.transform.GetChild(1).GetComponent<Button>().interactable = false;
+        x2CoinBtn.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "Claimed";
+        x2CoinBtn.transform.GetChild(2).gameObject.SetActive(false);
+        StartCoroutine(MoveMoney(10, GameObject.Find("X2Coin").GetComponent<RectTransform>()));
     }
     public void Ads45S()
     {
@@ -495,6 +593,29 @@ public class GameManager : MonoBehaviour
         playzoneobj.SetActive(true);
         pool.SetActive(true);
         time += 45;
+        loseCount++;
+    }
+
+    public GameObject coinPrefab;
+    private IEnumerator MoveMoney(int count, RectTransform pack)
+    {
+        Debug.Log("MoveMoney");
+        for (int i = 1; i <= count; i++)
+        {
+            yield return new WaitForSeconds(0.1f);
+            GameObject coin1 = Instantiate(coinPrefab, GameObject.Find("HUD").transform);
+            coin1.GetComponent<RectTransform>().position = pack.position;
+            Vector3[] waypoints = new Vector3[3];
+            waypoints[0] = pack.position;
+            waypoints[2] = GameObject.Find("MoneyImg_Win").GetComponent<RectTransform>().position;
+            waypoints[1] = new Vector3(Random.Range(pack.position.x, GameObject.Find("MoneyImg_Win").GetComponent<RectTransform>().position.x),
+                                        Random.Range(pack.position.y, GameObject.Find("MoneyImg_Win").GetComponent<RectTransform>().position.y), 0);
+
+            coin1.transform.DOPath(waypoints, 0.5f, PathType.CatmullRom)
+                     .SetEase(Ease.OutQuad)
+                     .OnComplete(() => Destroy(coin1));
+        }
+
     }
 } 
 
@@ -520,6 +641,7 @@ public class PlayerData
     public int month = 0;
     public bool[] daily;
     public bool hasLevel;
+    public bool firstPurchased = false;
     public PlayerData(int currentLevel, Challenge chalenge, int money, int hint, bool noAds, bool isMusicOn, bool isSoundOn, bool isVibrateOn, int day)
     {
         this.currentLevel = currentLevel;

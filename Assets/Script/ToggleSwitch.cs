@@ -36,7 +36,6 @@ public class ToggleSwitch : MonoBehaviour
     }
     private void Update()
     {
-        if (!MenuManager.instance.isSetting) return;
         if (isOn )
         {
             switchObj.GetComponent<RectTransform>().DOMove(pointOn.position, 0.3f);

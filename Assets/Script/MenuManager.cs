@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -11,6 +12,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static ToggleSwitch;
 using Path = System.IO.Path;
+using Random = UnityEngine.Random;
 
 public class MenuManager : MonoBehaviour
 {
@@ -18,7 +20,6 @@ public class MenuManager : MonoBehaviour
 
     [Header("Panels")]
     public GameObject selectChalengePanel;
-    public GameObject selectChalengePanel_Child;
     public GameObject homePanel, shopPanel, dailyPanel;
     public GameObject settingsPanel;
     public GameObject settingsPanel_Child;
@@ -74,7 +75,16 @@ public class MenuManager : MonoBehaviour
         
         shopPanel.GetComponent<RectTransform>().localPosition = Vector3.left * 10000;
         dailyPanel.GetComponent<RectTransform>().localPosition = Vector3.right * 10000;
-
+        if (playerData.noAds)
+        {
+            GameObject.Find("Pack1").GetComponent<Button>().interactable = false;
+            GameObject.Find("Pack1 Text").GetComponent<Text>().text = "Purchased";
+        }
+        if (playerData.firstPurchased)
+        {
+            GameObject.Find("Pack4").GetComponent<Button>().interactable = false;
+            GameObject.Find("Pack4 Text").GetComponent<Text>().text = "Purchased";
+        }
     }
     private void Start()
     {
@@ -259,4 +269,72 @@ public class MenuManager : MonoBehaviour
             default: break;
         }
     }
+
+    public void PackNoAds()
+    {
+
+        playerData.noAds = true;
+        SavePlayerData(playerData);
+        if (playerData.noAds)
+        {
+            GameObject.Find("Pack1").GetComponent<Button>().interactable = false;
+            GameObject.Find("Pack1 Text").GetComponent<Text>().text = "Purchased";
+        }
+        if (playerData.firstPurchased)
+        {
+            GameObject.Find("Pack4").GetComponent<Button>().interactable = false;
+            GameObject.Find("Pack4 Text").GetComponent<Text>().text = "Purchased";
+        }
+    }
+    public void Pack100()
+    {
+        playerData.money += 100;
+        SavePlayerData(playerData);
+        StartCoroutine(MoveMoney(5, GameObject.Find("Pack2").GetComponent<RectTransform>()));
+    }
+    public void Pack350()
+    {
+        playerData.money += 350;
+        SavePlayerData(playerData);
+        StartCoroutine(MoveMoney(15, GameObject.Find("Pack3").GetComponent<RectTransform>()));
+    }
+    public void Pack225Deal()
+    {
+        playerData.money += 225;
+        playerData.firstPurchased = true;
+        SavePlayerData(playerData);
+        
+        StartCoroutine(MoveMoney(10, GameObject.Find("Pack4").GetComponent<RectTransform>()));
+        if (playerData.noAds)
+        {
+            GameObject.Find("Pack1").GetComponent<Button>().interactable = false;
+            GameObject.Find("Pack1 Text").GetComponent<Text>().text = "Purchased";
+        }
+        if (playerData.firstPurchased)
+        {
+            GameObject.Find("Pack4").GetComponent<Button>().interactable = false;
+            GameObject.Find("Pack4 Text").GetComponent<Text>().text = "Purchased";
+        }
+    }
+
+    private IEnumerator MoveMoney(int count, RectTransform pack)
+    {
+        for (int i=1; i <= count; i++)
+        {
+            yield return new WaitForSeconds(0.1f);
+            GameObject coin1 = Instantiate(coinPrefab, canvas.transform);
+            coin1.GetComponent<RectTransform>().position = pack.position;
+            Vector3[] waypoints = new Vector3[3];
+            waypoints[0] = pack.position;
+            waypoints[2] = GameObject.Find("MoneyImg").GetComponent<RectTransform>().position;
+            waypoints[1] = new Vector3(Random.Range(pack.position.x, GameObject.Find("MoneyImg").GetComponent<RectTransform>().position.x),
+                                        Random.Range(pack.position.y, GameObject.Find("MoneyImg").GetComponent<RectTransform>().position.y), 0);
+
+            coin1.transform.DOPath(waypoints, 0.5f, PathType.CatmullRom)
+                     .SetEase(Ease.OutQuad)
+                     .OnComplete(() => Destroy(coin1));
+        }
+
+    }
+    public GameObject coinPrefab;
 }

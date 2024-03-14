@@ -94,33 +94,33 @@ public class HUDControler : MonoBehaviour
                         switch (GameManager.instance.level)
                         {
                             case Difficult.Easy:
-                                GetComponent<TextMeshProUGUI>().text = "+5 Coins";
+                                GetComponent<TextMeshProUGUI>().text = "+5";
 
                                 break;
                             case Difficult.Medium:
-                                GetComponent<TextMeshProUGUI>().text = "+10 Coins";
+                                GetComponent<TextMeshProUGUI>().text = "+10";
 
                                 break;
                             case Difficult.Hard:
-                                GetComponent<TextMeshProUGUI>().text = "+15 Coins";
+                                GetComponent<TextMeshProUGUI>().text = "+15";
 
                                 break;
                         }
                         break;
                     case PlayerData.Challenge.Daily:
-                                GetComponent<TextMeshProUGUI>().text = "+25 Coins";
+                                GetComponent<TextMeshProUGUI>().text = "+25";
 
                         break;
                     case PlayerData.Challenge.Easy:
-                                GetComponent<TextMeshProUGUI>().text = "+3 Coins";
+                                GetComponent<TextMeshProUGUI>().text = "+3";
 
                         break;
                     case PlayerData.Challenge.Medium:
-                        GetComponent<TextMeshProUGUI>().text = "+4 Coins";
+                        GetComponent<TextMeshProUGUI>().text = "+4";
 
                         break;
                     case PlayerData.Challenge.Hard:
-                        GetComponent<TextMeshProUGUI>().text = "+7 Coins";
+                        GetComponent<TextMeshProUGUI>().text = "+7";
 
                         break;
                 }

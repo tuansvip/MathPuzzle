@@ -42,6 +42,7 @@ public class GenerateMath : MonoBehaviour
     bool up = true, down = true, left = true, right = true;
     bool canChangeDir = true;
     int maxHide;
+    float ratiocam;
 
     public void Generate(GameManager.Difficult level)
     {
@@ -337,9 +338,13 @@ public class GenerateMath : MonoBehaviour
             }
 
         }
-
+        ratiocam = Camera.main.orthographicSize * 2 * Camera.main.aspect / 10;
         GenerateGrid();
         SuffleAnswers();
+        if (GameManager.instance.IsMobile())
+        {
+            GameManager.instance.ResizeGameplay();
+        }
     }
 
     int NumberOfBlank()
@@ -392,9 +397,9 @@ public class GenerateMath : MonoBehaviour
                     Vector3 tempFs = cellAnswer[i].GetComponent<Answer>().startPosition;
                     Vector3 tempTarget = cellAnswer[i].GetComponent<Answer>().targetPosition;
                     cellAnswer[i].GetComponent<Answer>().startPosition = cellAnswer[j].GetComponent<Answer>().startPosition;
-                    cellAnswer[i].GetComponent<Answer>().targetPosition = cellAnswer[j].GetComponent<Answer>().targetPosition;
+                    cellAnswer[i].GetComponent<Answer>().SetTarget(cellAnswer[j].GetComponent<Answer>().targetPosition);
                     cellAnswer[j].GetComponent<Answer>().startPosition = tempFs;
-                    cellAnswer[j].GetComponent<Answer>().targetPosition = tempTarget;               
+                    cellAnswer[j].GetComponent<Answer>().SetTarget(tempTarget);               
                     Swap(cellAnswer, i, j);
                 }
                 
