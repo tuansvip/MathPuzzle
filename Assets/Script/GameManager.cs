@@ -10,6 +10,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;   
@@ -45,31 +46,37 @@ public class GameManager : MonoBehaviour
     public GameObject losePanel;
     public GameObject musicToggle;
     public GameObject soundToggle;
-    public GameObject vibrateToggle;
+    public GameObject vibrationToggle;
     public GameObject x2CoinBtn;
     public GameObject gameplay;
+    public GameObject HUD;
     public Blank selectedBlank = null;
-    public int maxLevel = 2004;
 
     [Header("#Prefabs")]
     public GameObject answerPrefab;
     public GameObject blankPrefab;
     public GameObject numberPrefab;
     public GameObject opPrefab;
-    public GameObject _75coinPrefab;
+    public GameObject _200coinPrefab;
 
 
     [Header("#Game Component")]
     public GenerateMath playzone;
     public PlayerData playerData;
+    public RenderTexture myRenderTexture;
+    public Camera winCamera;
+    public ParticleSystem winParticle;
+    public ParticleSystem winParticle2;
 
     [Header("#Game Data")]
+    public int maxLevel = 2004;
     public Difficult level;
     public float time;
     public bool isHighscore;
     public bool hintMoving = false;
-
     public bool isSorted = false;
+
+
     bool isStart = false;
     private string savePath;
     string encryptKey = "iamnupermane4133bbce2ea2315a1916";
@@ -82,15 +89,15 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
-        Debug.Log("Height: " + Screen.height + "; Width: " + Screen.width);
         isHighscore = false;
         savePath = Application.persistentDataPath + "/IAMNUPERMAN.json";
         playerData = LoadPlayerData(); 
-        Debug.Log("Money =" + playerData.money);
-        Debug.Log("Music: " + playerData.isMusicOn + "; Sound: " + playerData.isSoundOn + "; Vib: " + playerData.isVibrateOn);
         soundToggle.GetComponent<ToggleSwitch>().isOn = playerData.isSoundOn;
         musicToggle.GetComponent<ToggleSwitch>().isOn = playerData.isMusicOn;
-        vibrateToggle.GetComponent<ToggleSwitch>().isOn = playerData.isVibrateOn;
+        vibrationToggle.GetComponent<ToggleSwitch>().isOn = playerData.isVibrateOn;
+        soundToggle.GetComponent<ToggleSwitch>().Init();
+        musicToggle.GetComponent<ToggleSwitch>().Init();
+        vibrationToggle.GetComponent<ToggleSwitch>().Init();
         Application.targetFrameRate = 144;
         if (playerData.challenge == PlayerData.Challenge.Easy)
         {
@@ -126,8 +133,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        Debug.Log("Day: " + playerData.day + ";  Difficult: " + level + "; Chalenge: " + playerData.challenge);
-        if (SceneManager.GetActiveScene().name == "sample")
+        if (SceneManager.GetActiveScene().name == "challenge") 
         {
             playzone.Generate(level);
             length = playzone.size;
@@ -141,9 +147,7 @@ public class GameManager : MonoBehaviour
             LoadLevel("Level" + playerData.currentLevel);
             playzone.Generate(level);
         }
-        Debug.Log(playerData.challenge);
-        Debug.Log(playerData.currentLevel);
-        Debug.Log("Width " + Screen.width + " Heigh " + Screen.height + "\n" + Camera.main.orthographicSize);
+
         isStart = true;
         //auto generate level
 /*        if (SceneManager.GetActiveScene().name == "sample" && playerData.challenge == PlayerData.Challenge.Level && playerData.currentLevel < 2005)
@@ -152,6 +156,28 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadScene("menu");
         }*/
         //
+        if (IsMobile())
+        {
+            ResizeGameplay();
+        }
+    }
+    public float SafeAreaOffset()
+    {
+        {
+            Rect safeArea = Screen.safeArea;
+
+            // Chuyển đổi cạnh trên của safe area từ pixels sang world space
+            Vector3 safeAreaTopEdge = Camera.main.ScreenToWorldPoint(new Vector3(0, safeArea.yMax, Camera.main.nearClipPlane));
+
+            // Chuyển đổi cạnh trên của camera từ viewport space (0-1) sang world space
+            Vector3 cameraTopEdge = Camera.main.ViewportToWorldPoint(new Vector3(0, 1, Camera.main.nearClipPlane));
+
+            // Tính độ lệch giữa cạnh trên của camera và cạnh trên của safe area trong world space
+            float topEdgeDifference = safeAreaTopEdge.y - cameraTopEdge.y;
+
+            return topEdgeDifference;
+
+        }
     }
     public bool IsMobile()
     {
@@ -164,13 +190,22 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            return false;
+            return true;
         }
     }
     public void ResizeGameplay()
     {
-        float cameraWidth = Camera.main.orthographicSize * 2 * Camera.main.aspect;     
-        gameplay.transform.localScale = new Vector3(cameraWidth / 10, cameraWidth / 10, 1);
+        float originalTopEdgeY = gameplay.transform.position.y + (gameplay.transform.localScale.y * 0.5f);
+        float cameraWidth = Camera.main.aspect / 0.5625f;
+        gameplay.transform.localScale = new Vector3(gameplay.transform.localScale.y * cameraWidth, gameplay.transform.localScale.y * cameraWidth, 1);
+        float newTopEdgeY = gameplay.transform.position.y + (gameplay.transform.localScale.y * 0.5f);
+        float yShift = originalTopEdgeY - newTopEdgeY;
+        gameplay.transform.position += new Vector3(0, yShift + SafeAreaOffset(), 0);
+        foreach(Answer ans in ansSpawn.GetComponentsInChildren<Answer>())
+        {
+            ans.startPosition += Vector3.up * yShift + Vector3.up * SafeAreaOffset();
+            ans.targetPosition += Vector3.up * yShift + Vector3.up * SafeAreaOffset();
+        }
     }
 
     static bool CheckLevelExistence(string name)
@@ -247,6 +282,10 @@ public class GameManager : MonoBehaviour
     {
         SFXManager.instance.PlayLose();
         isStart = false;
+        foreach (Answer ans in ansSpawn.GetComponentsInChildren<Answer>())
+        {
+            ans.isDragging = false;
+        }
         Time.timeScale = 0;
         playzoneobj.SetActive(false);
         pool.SetActive(false);
@@ -264,22 +303,33 @@ public class GameManager : MonoBehaviour
     {
         SFXManager.instance.PlayWin();
         isStart = false;
+        isPause = true;
+
+        winParticle.Play();
+        winParticle2.Play();
+        StartCoroutine(ShowPanelWin());
+    }
+
+
+    private IEnumerator ShowPanelWin()
+    {
+        yield return new WaitForSeconds(2f);
         switch (playerData.challenge)
         {
             case PlayerData.Challenge.Level:
                 switch (level)
                 {
                     case Difficult.Easy:
-                        playerData.money += 5;
+                        StartCoroutine(MoneyIncrease(5));
                         SavePlayerData(playerData);
 
                         break;
                     case Difficult.Medium:
-                        playerData.money += 10;
+                        StartCoroutine(MoneyIncrease(10));
                         SavePlayerData(playerData);
                         break;
                     case Difficult.Hard:
-                        playerData.money += 15;
+                        StartCoroutine(MoneyIncrease(15));
                         SavePlayerData(playerData);
                         break;
                 }
@@ -290,35 +340,43 @@ public class GameManager : MonoBehaviour
                 playerData.hasLevel = false;
                 break;
             case PlayerData.Challenge.Daily:
-                playerData.money += 25;
+                StartCoroutine(MoneyIncrease(25));
                 SavePlayerData(playerData);
                 break;
             case PlayerData.Challenge.Easy:
-                playerData.money += 3;
+                StartCoroutine(MoneyIncrease(3));
                 SavePlayerData(playerData);
                 break;
             case PlayerData.Challenge.Medium:
-                playerData.money += 4;
+                StartCoroutine(MoneyIncrease(4));
                 SavePlayerData(playerData);
                 break;
             case PlayerData.Challenge.Hard:
-                playerData.money += 7;
+                StartCoroutine(MoneyIncrease(7));
                 SavePlayerData(playerData);
                 break;
         }
-        isPause = true;
-        playzoneobj.SetActive(false);
-        pool.SetActive(false);
-        playHUD.SetActive(false);
-
-        if(playerData.challenge == PlayerData.Challenge.Daily)
+        if (playerData.challenge == PlayerData.Challenge.Daily)
         {
             playerData.daily[playerData.day] = true;
         }
         SavePlayerData(playerData);
         winPanel.SetActive(true);
+        ShowWinImg();
         StartCoroutine(MoveMoney(10, GameObject.Find("CoinWin").GetComponent<RectTransform>()));
     }
+
+    public void ShowWinImg()
+    {
+        playHUD.SetActive(false);
+        pool.transform.GetChild(0).gameObject.SetActive(false);
+        HUD.GetComponent<Canvas>().sortingOrder = -20;
+        gameplay.transform.position += Vector3.up * 1.3f;
+        gameplay.transform.localScale /= 1.5f;
+
+    }
+    
+
     public void NextLevel()
     {
         SFXManager.instance.PlayClick();
@@ -383,15 +441,27 @@ public class GameManager : MonoBehaviour
     public void Home()
     {
         SFXManager.instance.PlayClick();
-        Time.timeScale = 1;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+        UnityEvent e = new UnityEvent();
+        e.AddListener(() =>
+        {
+            Time.timeScale = 1;
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+        });
+        ACEPlay.Bridge.BridgeController.instance.ShowInterstitial("placement", e);
+
     }
     public void Restart()
     {
-        SFXManager.instance.PlayClick();
-        Time.timeScale = 1;
-        isHighscore = false;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        UnityEvent eReward = new UnityEvent();
+        eReward.AddListener(() =>
+        {
+            // luồng game sau khi tắt quảng cáo ( tặng thưởng cho user )
+            SFXManager.instance.PlayClick();
+            Time.timeScale = 1;
+            isHighscore = false;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        });
+        ACEPlay.Bridge.BridgeController.instance.ShowRewarded("placement", eReward, null);
     }
     public void Pause()
     {
@@ -399,6 +469,7 @@ public class GameManager : MonoBehaviour
         SFXManager.instance.PlayClick();
         Time.timeScale = 1;
         pausePanel.SetActive(true);
+        playHUD.SetActive(false);
     }
     public void Resume()
     {
@@ -408,18 +479,19 @@ public class GameManager : MonoBehaviour
         pausePanel.SetActive(false);
         supportPanel.SetActive(false);
         losePanel.SetActive(false);
+        playHUD.SetActive(true);
     }
 
     public void SaveSetting()
     {
         playerData.isSoundOn = soundToggle.GetComponent<ToggleSwitch>().isOn;
         playerData.isMusicOn = musicToggle.GetComponent<ToggleSwitch>().isOn;
-        playerData.isVibrateOn = vibrateToggle.GetComponent<ToggleSwitch>().isOn;
+        playerData.isVibrateOn = vibrationToggle.GetComponent<ToggleSwitch>().isOn;
         SavePlayerData(playerData);
     }
     public void Hint()
     {
-        if (playerData.money >= 75 && !hintMoving)
+        if ((playerData.hint > 0 && !hintMoving) || (playerData.money >= 200 && !hintMoving))
         {
             hintMoving = true;
             List<GameObject> listAns = new List<GameObject>();
@@ -448,83 +520,87 @@ public class GameManager : MonoBehaviour
                 }
             }
             Color originalColor = ans.GetComponent<Answer>().bgColor;
+            ans.GetComponent<Answer>().isHinting = true;
             ans.transform.DOMove(targerTransform.position + Vector3.back * 2, 1f);
-            ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1.5f).OnComplete(()=> hintMoving = false);
-            playerData.money -= 75;
-            GameObject minus75 = Instantiate(_75coinPrefab, GameObject.Find("MoneyGameplay").transform);
-            minus75.GetComponent<RectTransform>().position = GameObject.Find("MoneyGameplay").GetComponent<RectTransform>().position;
-            minus75.GetComponent<RectTransform>().DOMove(minus75.GetComponent<RectTransform>().position + Vector3.down, 1f);
-            minus75.GetComponent<Text>().DOColor(new Color(255, 0, 0, 0), 1f).OnComplete(() => Destroy(minus75));
+            StartCoroutine(HintMoveBack(ans, originalTransform));
+            if (playerData.hint < 1 && playerData.money >= 200)
+            {
+                playerData.money -= 200;
+                GameObject minus200 = Instantiate(_200coinPrefab, GameObject.Find("MoneyGameplay").transform);
+                minus200.GetComponent<RectTransform>().position = GameObject.Find("MoneyGameplay").GetComponent<RectTransform>().position;
+                minus200.GetComponent<RectTransform>().DOMove(minus200.GetComponent<RectTransform>().position + Vector3.down, 1f);
+                minus200.GetComponent<Text>().DOColor(new Color(255, 0, 0, 0), 1f).OnComplete(() => Destroy(minus200));
+            }
+            else
+            {
+                 playerData.hint--;
+            }
+
         }
-        if (playerData.money < 75)
+        else
         {
-            isPause = true;
-            SFXManager.instance.PlayClick();
-            Time.timeScale = 1;
-            supportPanel.SetActive(true);
+            if (playerData.money < 200 && playerData.hint < 1)
+            {
+                isPause = true;
+                SFXManager.instance.PlayClick();
+                Time.timeScale = 1;
+                supportPanel.SetActive(true);
+            }
         }
 
         SavePlayerData(playerData);
     }
+    private IEnumerator HintMoveBack(GameObject ans, Transform originalTransform)
+    {
+        yield return new WaitForSeconds(1f);
+        ans.transform.DOMove(originalTransform.position, 1f).OnComplete(() => {
+            hintMoving = false;
+            ans.GetComponent<Answer>().isHinting = false;
+        });
+    }
     public void HintAds()
     {
-        //ADs here
-        Resume();
-        List<GameObject> listAns = new List<GameObject>();
-        for (int i = 0; i < ansSpawn.transform.childCount; i++)
+        UnityEvent eReward = new UnityEvent();
+        eReward.AddListener(() =>
         {
-            listAns.Add(ansSpawn.transform.GetChild(i).gameObject);
-        }
-        GameObject ans = listAns[0];
-        foreach (GameObject answer in listAns)
-        {
-            if (!answer.GetComponent<Answer>().isOnBlank)
-            {
-                ans = answer;
-                break;
-            }
-        }
-        List<GameObject> listobj = playzone.GetComponent<GenerateMath>().grid.Cast<GameObject>().ToList();
-        Transform originalTransform = ans.transform;
-        Transform targerTransform = ans.transform;
-        foreach (GameObject obj in listobj)
-        {
-            if (obj != null && obj.CompareTag("BlankCell") && obj.GetComponent<Blank>().value == ans.GetComponent<Number>().value && !obj.GetComponent<Blank>().isOnAnswer)
-            {
-                targerTransform = obj.transform;
-                break;
-            }
-        }
-        Color originalColor = ans.GetComponent<Answer>().bgColor;
-        ans.transform.DOMove(targerTransform.position + Vector3.back * 2, 1f);
-        ans.transform.DOMove(originalTransform.position, 1f).SetDelay(1.5f);
+            Resume();
+            playerData.hint++;
+            SavePlayerData(playerData);
+        });
+        ACEPlay.Bridge.BridgeController.instance.ShowRewarded("placement", eReward, null);
+
     }
     public void BuySupport()
     {
-        Time.timeScale = 1;
-        isStart = true;
-        losePanel.SetActive(false);
-        playzoneobj.SetActive(true);
-        pool.SetActive(true);
-        time += 60;
-        loseCount++;
-        StartCoroutine(HintAfterBuySupport());
-    }
-    private IEnumerator HintAfterBuySupport()
-    {
-        yield return new WaitForSeconds(0.2f);
-        HintAds();
+        if (playerData.money > 400)
+        {
+            Time.timeScale = 1;
+            isStart = true;
+            losePanel.SetActive(false);
+            playzoneobj.SetActive(true);
+            pool.SetActive(true);
+            time += 60;
+            MoneyDecrease(400);
+            loseCount++;
+            playerData.hint++;
+            SavePlayerData(playerData);
+            supportPanel.SetActive(false);
+        }
     }
     
     public void Buy60s()
     {
-        Time.timeScale = 1;
-        isStart = true;
-        losePanel.SetActive(false);
-        playzoneobj.SetActive(true);
-        pool.SetActive(true);
-        time+= 60;
-        loseCount++;
+        if (playerData.money >= 150)
+        {
+            Time.timeScale = 1;
+            isStart = true;
+            StartCoroutine(MoneyDecrease(150));
+            losePanel.SetActive(false);
+            playzoneobj.SetActive(true);
+            pool.SetActive(true);
+            time += 60;
+            loseCount++;
+        }
     }
     public void Sorting()
     {
@@ -541,69 +617,82 @@ public class GameManager : MonoBehaviour
     }
     public void X2Coin()
     {
-        switch (playerData.challenge)
+        SFXManager.instance.PlayClick();
+        UnityEvent eReward = new UnityEvent();
+        eReward.AddListener(() =>
         {
-            case PlayerData.Challenge.Level:
-                switch (level)
-                {
-                    case Difficult.Easy:
-                        playerData.money += 5;
-                        SavePlayerData(playerData);
+            // luồng game sau khi tắt quảng cáo ( tặng thưởng cho user )
+            switch (playerData.challenge)
+            {
+                case PlayerData.Challenge.Level:
+                    switch (level)
+                    {
+                        case Difficult.Easy:
+                            StartCoroutine(MoneyIncrease(5));    
+                            SavePlayerData(playerData);
 
-                        break;
-                    case Difficult.Medium:
-                        playerData.money += 10;
-                        SavePlayerData(playerData);
-                        break;
-                    case Difficult.Hard:
-                        playerData.money += 15;
-                        SavePlayerData(playerData);
-                        break;
-                }
-                break;
-            case PlayerData.Challenge.Daily:
-                playerData.money += 25;
-                SavePlayerData(playerData);
-                break;
-            case PlayerData.Challenge.Easy:
-                playerData.money += 3;
-                SavePlayerData(playerData);
-                break;
-            case PlayerData.Challenge.Medium:
-                playerData.money += 4;
-                SavePlayerData(playerData);
-                break;
-            case PlayerData.Challenge.Hard:
-                playerData.money += 7;
-                SavePlayerData(playerData);
-                break;
-        }
-        SavePlayerData(playerData);
-        x2CoinBtn.GetComponent<Button>().interactable = false;
-        x2CoinBtn.transform.GetChild(1).GetComponent<Button>().interactable = false;
-        x2CoinBtn.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "Claimed";
-        x2CoinBtn.transform.GetChild(2).gameObject.SetActive(false);
-        StartCoroutine(MoveMoney(10, GameObject.Find("X2Coin").GetComponent<RectTransform>()));
+                            break;
+                        case Difficult.Medium:
+                            StartCoroutine(MoneyIncrease(10));
+                            SavePlayerData(playerData);
+                            break;
+                        case Difficult.Hard:
+                            StartCoroutine(MoneyIncrease(15));
+                            SavePlayerData(playerData);
+                            break;
+                    }
+                    break;
+                case PlayerData.Challenge.Daily:
+                    StartCoroutine(MoneyIncrease(25));
+                    SavePlayerData(playerData);
+                    break;
+                case PlayerData.Challenge.Easy:
+                    StartCoroutine(MoneyIncrease(3));
+                    SavePlayerData(playerData);
+                    break;
+                case PlayerData.Challenge.Medium:
+                    StartCoroutine(MoneyIncrease(4));
+                    SavePlayerData(playerData);
+                    break;
+                case PlayerData.Challenge.Hard:
+                    StartCoroutine(MoneyIncrease(7));
+                    SavePlayerData(playerData);
+                    break;
+            }
+            SavePlayerData(playerData);
+            x2CoinBtn.GetComponent<Button>().interactable = false;
+            x2CoinBtn.transform.GetChild(1).GetComponent<Button>().interactable = false;
+            x2CoinBtn.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "Claimed";
+            x2CoinBtn.transform.GetChild(2).gameObject.SetActive(false);
+            StartCoroutine(MoveMoney(10, GameObject.Find("X2Coin").GetComponent<RectTransform>()));
+        });
+        ACEPlay.Bridge.BridgeController.instance.ShowRewarded("placement", eReward, null);
     }
     public void Ads45S()
     {
-        Time.timeScale = 1;
-        isStart = true;
-        losePanel.SetActive(false);
-        playzoneobj.SetActive(true);
-        pool.SetActive(true);
-        time += 45;
-        loseCount++;
+        UnityEvent eReward = new UnityEvent();
+        eReward.AddListener(() =>
+        {
+            // luồng game sau khi tắt quảng cáo ( tặng thưởng cho user )
+            Time.timeScale = 1;
+            isStart = true;
+            losePanel.SetActive(false);
+            playzoneobj.SetActive(true);
+            pool.SetActive(true);
+            time += 45;
+            loseCount++;
+        });
+        ACEPlay.Bridge.BridgeController.instance.ShowRewarded("placement", eReward, null);
+
     }
 
     public GameObject coinPrefab;
     private IEnumerator MoveMoney(int count, RectTransform pack)
     {
-        Debug.Log("MoveMoney");
         for (int i = 1; i <= count; i++)
         {
             yield return new WaitForSeconds(0.1f);
-            GameObject coin1 = Instantiate(coinPrefab, GameObject.Find("HUD").transform);
+            GameObject coin1 = Instantiate(coinPrefab, GameObject.Find("MoneyMoveParent").transform);
             coin1.GetComponent<RectTransform>().position = pack.position;
             Vector3[] waypoints = new Vector3[3];
             waypoints[0] = pack.position;
@@ -616,6 +705,29 @@ public class GameManager : MonoBehaviour
                      .OnComplete(() => Destroy(coin1));
         }
 
+    }
+    public IEnumerator MoneyIncrease(int value)
+    {
+        float delay = 0.1f;
+        while (value > 0)
+        {
+            playerData.money++;
+            value--;
+            delay *= 0.2f;
+            yield return new WaitForSeconds(delay);
+        }
+        SavePlayerData(playerData);
+    }    public IEnumerator MoneyDecrease(int value)
+    {
+        float delay = 0.1f;
+        while (value > 0)
+        {
+            playerData.money--;
+            value--;
+            delay *= 0.2f;
+            yield return new WaitForSeconds(delay);
+        }
+        SavePlayerData(playerData);
     }
 } 
 
@@ -642,6 +754,7 @@ public class PlayerData
     public bool[] daily;
     public bool hasLevel;
     public bool firstPurchased = false;
+    public bool[] monthGift;
     public PlayerData(int currentLevel, Challenge chalenge, int money, int hint, bool noAds, bool isMusicOn, bool isSoundOn, bool isVibrateOn, int day)
     {
         this.currentLevel = currentLevel;
@@ -653,10 +766,15 @@ public class PlayerData
         this.isSoundOn = isSoundOn;
         this.isVibrateOn = isVibrateOn;
         this.day = day;
-        daily = new bool[37];
-        for (int i = 0; i < 37; i++)
+        daily = new bool[40];
+        for (int i = 0; i < 40; i++)
         {
             daily[i] = false;
+        }
+        monthGift = new bool[5];
+        for (int i = 0; i < 5; i++)
+        {
+            monthGift[i] = false;
         }
     }
 }

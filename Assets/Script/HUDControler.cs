@@ -22,7 +22,8 @@ public class HUDControler : MonoBehaviour
         MoneyText,
         ReceiveMoney,
         DifText,
-        DifImage
+        DifImage,
+        MonthYear
 
     }
     public HUDState state;
@@ -45,7 +46,7 @@ public class HUDControler : MonoBehaviour
             case HUDState.HighscoreHard:
                 break;
             case HUDState.LevelText:
-                if (SceneManager.GetActiveScene().name == "sample"|| SceneManager.GetActiveScene().name == "level")
+                if (SceneManager.GetActiveScene().name == "challenge"|| SceneManager.GetActiveScene().name == "level")
                 {
                     if (GameManager.instance.playerData.challenge == PlayerData.Challenge.Level)
                         GetComponent<TextMeshProUGUI>().text = "Level " + GameManager.instance.playerData.currentLevel;
@@ -68,17 +69,10 @@ public class HUDControler : MonoBehaviour
             case HUDState.Heart:
                 break;
             case HUDState.HintText:
-                if (SceneManager.GetActiveScene().name == "sample")
-                {
-                    GetComponent<TextMeshProUGUI>().text = GameManager.instance.playerData.hint.ToString();
-                }
-                else
-                {
-                    GetComponent<Text>().text = MenuManager.instance.playerData.hint.ToString();
-                }
+                GetComponent<Text>().text = GameManager.instance.playerData.hint.ToString();
                 break;
             case HUDState.MoneyText:
-                if (SceneManager.GetActiveScene().name == "sample" || SceneManager.GetActiveScene().name == "level")
+                if (SceneManager.GetActiveScene().name == "challenge" || SceneManager.GetActiveScene().name == "level")
                 {
                     GetComponent<Text>().text = GameManager.instance.playerData.money.ToString();
                 }
@@ -152,6 +146,9 @@ public class HUDControler : MonoBehaviour
                         GetComponent<Image>().sprite = MenuManager.instance.hardImg;
                         break;
                 }
+                break;
+            case HUDState.MonthYear:
+                GetComponent<Text>().text = System.DateTime.Now.ToString("MMMM yyyy");
                 break;
         }
     }

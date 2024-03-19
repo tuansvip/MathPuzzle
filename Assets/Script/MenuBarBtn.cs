@@ -23,7 +23,7 @@ public class MenuBarBtn : MonoBehaviour
         homeBtn.GetComponent<Outline>().DOColor(selectedStrokeColor, 0.5f);
         homeBtn.GetComponent<Image>().DOColor(selectedBGColor, 0.5f);
         homeBtn.transform.DOMoveY(yOrigin + yOffSet, 0.5f);
-        homeBtn.transform.DOScale(1.2f, 0.5f);
+        homeBtn.transform.DOScale(1.5f, 0.5f);
         shopBtn.transform.GetChild(0).GetComponent<Image>().DOColor(iconColor, 0.5f);
         shopBtn.GetComponent<Outline>().DOColor(strokeColor, 0.5f);
         shopBtn.GetComponent<Image>().DOColor(bgColor, 0.5f);
@@ -42,7 +42,7 @@ public class MenuBarBtn : MonoBehaviour
         shopBtn.GetComponent<Outline>().DOColor(selectedStrokeColor, 0.5f);
         shopBtn.GetComponent<Image>().DOColor(selectedBGColor, 0.5f);
         shopBtn.transform.DOMoveY(yOrigin + yOffSet, 0.5f);
-        shopBtn.transform.DOScale(1.2f, 0.5f);
+        shopBtn.transform.DOScale(1.5f, 0.5f);
         homeBtn.transform.GetChild(0).GetComponent<Image>().DOColor(iconColor, 0.5f);
         homeBtn.GetComponent<Outline>().DOColor(strokeColor, 0.5f);
         homeBtn.GetComponent<Image>().DOColor(bgColor, 0.5f);
@@ -61,7 +61,7 @@ public class MenuBarBtn : MonoBehaviour
         dailyBtn.GetComponent<Outline>().DOColor(selectedStrokeColor, 0.5f);
         dailyBtn.GetComponent<Image>().DOColor(selectedBGColor, 0.5f);
         dailyBtn.transform.DOMoveY(yOrigin + yOffSet, 0.5f);
-        dailyBtn.transform.DOScale(1.2f, 0.5f);
+        dailyBtn.transform.DOScale(1.5f, 0.5f);
         homeBtn.transform.GetChild(0).GetComponent<Image>().DOColor(iconColor, 0.5f);
         homeBtn.GetComponent<Outline>().DOColor(strokeColor, 0.5f);
         homeBtn.GetComponent<Image>().DOColor(bgColor, 0.5f);

@@ -13,7 +13,9 @@ public class Answer : MonoBehaviour
     public bool isOnBlank = false;
     public bool isOnOtherAns = false;
     public bool isCorrect = false;
+    public bool isHinting = false;
     public Vector3 startPosition;
+    public Vector3 startScale;
     public Vector3 targetPosition;
     Vector3 blankPosition;
     public Color bgColor;
@@ -37,6 +39,7 @@ public class Answer : MonoBehaviour
     //Drag and Drop
     private void OnMouseDown()
     {
+        if (GameManager.instance.isPause) return;
         if (GameManager.instance.selectedBlank != null)
         {
             GameManager.instance.AddState();
@@ -62,7 +65,8 @@ public class Answer : MonoBehaviour
         {
             isDragging = true;
             background.color = bgColor;
-            transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
+            transform.DOScale(startScale, 0.5f).SetEase(Ease.OutQuart);
+            transform.DOScale(startScale, 0.5f).SetEase(Ease.OutQuart);
 
         }
 
@@ -103,7 +107,7 @@ public class Answer : MonoBehaviour
                 SFXManager.instance.PlayWrong();
             }
             SetTarget(blankPosition);
-            anotherCol.GetComponent<Answer>().transform.localScale = Vector3.one;
+            anotherCol.GetComponent<Answer>().transform.localScale = startScale;
             anotherCol.GetComponent<Answer>().SetTarget(anotherCol.GetComponent<Answer>().startPosition);
             anotherCol.GetComponent<Answer>().background.color = anotherCol.GetComponent<Answer>().bgColor;
 
@@ -111,7 +115,7 @@ public class Answer : MonoBehaviour
         {
             SetTarget(startPosition);
             background.color = bgColor;
-            transform.localScale = Vector3.one;
+            transform.localScale = startScale;
         }
         isDragging = false;
 
@@ -150,8 +154,7 @@ public class Answer : MonoBehaviour
         {
             isOnBlank = false;
             if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isOnOtherAns)
-            {
-/*                GameManager.instance.check[blankX, blankY] = false;*/
+            {                
                 isCorrect = false;
             }
         }
@@ -167,11 +170,9 @@ public class Answer : MonoBehaviour
             blankX = collision.gameObject.GetComponent<Blank>().x;
             blankY = collision.gameObject.GetComponent<Blank>().y;
             blank = collision.gameObject.transform;
-            if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isDragging)
+            if (transform.GetComponent<Number>().value == collision.GetComponent<Blank>().value && !isDragging && !isHinting)
             {
-/*                GameManager.instance.check[blankX, blankY] = true;*/
                 isCorrect = true;
-
             }
 
         }
@@ -184,6 +185,7 @@ public class Answer : MonoBehaviour
 
     void Update()
     {
+        if (isHinting) return;
         if (isDragging)
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -197,17 +199,22 @@ public class Answer : MonoBehaviour
             {
                 transform.DOScale(GameManager.instance.spawnParent.transform.localScale, 0.5f).SetEase(Ease.OutQuart);
                 transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
+                
             }
             else
             {
-                transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
+                transform.DOScale(startScale, 0.5f).SetEase(Ease.OutQuart);
                 transform.position = Vector3.Lerp(transform.position, targetPosition, 0.1f);
                 background.color = bgColor;
             }
             if (targetPosition == startPosition)            {
-                transform.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutQuart);
+                transform.DOScale(startScale, 0.5f).SetEase(Ease.OutQuart);
                 background.color = bgColor;
             }
+        }
+        if (GameManager.instance.checkWin())
+        {
+            SetTarget(blank.position);
         }
     }
 }

@@ -54,12 +54,12 @@ public class GenerateMath : MonoBehaviour
                 maxHide = 2;
                 break;
             case PlayerData.Challenge.Medium:
-                size = 14;
+                size = 13;
                 maxRange = 500;
                 maxHide = 3;
                 break;
             case PlayerData.Challenge.Hard:
-                size = 14;
+                size = 13;
                 maxRange = 500;
                 maxHide = 3;
                 break;
@@ -95,7 +95,7 @@ public class GenerateMath : MonoBehaviour
                                 maxHide = 3;
                             } else
                             {
-                                size = 14;
+                                size = 13;
                                 maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
                                 maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
                                 if (maxRange > 500) maxRange = 500;
@@ -112,7 +112,7 @@ public class GenerateMath : MonoBehaviour
                                 maxHide = 3;
                             } else
                             {
-                                size = 14;
+                                size = 13;
                                 maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
                                 maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
                                 if (maxRange > 500) maxRange = 500;
@@ -124,7 +124,7 @@ public class GenerateMath : MonoBehaviour
                 }
                 break;
             case PlayerData.Challenge.Daily:
-                size = 14;
+                size = 13;
                 maxRange = 500;
                 maxHide = 3;
 
@@ -136,7 +136,7 @@ public class GenerateMath : MonoBehaviour
         grid = new GameObject[size, size];
         up = true; down = true; left = true; right = true;
         bool canPlay = false;
-        if (SceneManager.GetActiveScene().name == "sample")
+        if (SceneManager.GetActiveScene().name == "challenge")
         {
             gridModel = new string[size, size];
             values = new int[size, size];
@@ -338,13 +338,9 @@ public class GenerateMath : MonoBehaviour
             }
 
         }
-        ratiocam = Camera.main.orthographicSize * 2 * Camera.main.aspect / 10;
         GenerateGrid();
         SuffleAnswers();
-        if (GameManager.instance.IsMobile())
-        {
-            GameManager.instance.ResizeGameplay();
-        }
+
     }
 
     int NumberOfBlank()
@@ -361,7 +357,6 @@ public class GenerateMath : MonoBehaviour
                 count++;
             }
         }
-        Debug.Log("Blank: " + count);
         return count;
     }
     public static IList<T> Swap<T>(IList<T> list, int indexA, int indexB)
@@ -467,9 +462,7 @@ public class GenerateMath : MonoBehaviour
                     case "empty":
                         continue;
                     case "blank":
-                        Debug.Log(blankPrefab);
-                        Debug.Log(spawnPoint);
-                        Debug.Log(spawn);
+
                         grid[i, j] = Instantiate(blankPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].GetComponent<Blank>().value = values[i, j];
                         grid[i, j].GetComponent<Blank>().x = i;
@@ -478,9 +471,10 @@ public class GenerateMath : MonoBehaviour
 */                        cellBlank.Add(grid[i, j]);
                         
 
-                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % 7) * 1.1f, startAnsPoint.position.y - (count / 7) * 1.1f);
+                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % 10) * 1.1f * 8/13, startAnsPoint.position.y - (count / 10) * 1.1f * 8/13);
                         GameObject cell = Instantiate(answerPrefab, ansPoint, Quaternion.identity, spawnAns);
-                        cell.transform.localScale = Vector3.one;
+                        cell.GetComponent<Answer>().startScale = Vector3.one * 8f / 13;
+                        cell.transform.localScale = Vector3.one * 8f / 13;
                         cell.GetComponent<Number>().value = values[i, j];
                         cellAnswer.Add(cell);
                         count++;
@@ -514,18 +508,17 @@ public class GenerateMath : MonoBehaviour
         center = new Vector3((maxX + minX)  / 2f, (maxY + minY) / 2f, 0);
         
         spawn.position += transform.position -  center;
-        if (maxX - minX <= maxY - minY)
+/*        if (maxX - minX <= maxY - minY)
         {
             spawnParent.localScale = Vector3.one * (8f / (maxY - minY + 1));
         }
         else
         {
             spawnParent.localScale = Vector3.one * (8f / (maxX - minX + 1));
-        }
+        }*/ spawnParent.localScale = Vector3.one * 8f/13;
     }
     public void GenerateModel()
     {
-        Debug.Log("GenerateModel");
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
