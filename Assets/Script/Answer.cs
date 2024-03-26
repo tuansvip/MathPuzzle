@@ -20,11 +20,12 @@ public class Answer : MonoBehaviour
     Vector3 blankPosition;
     public Color bgColor;
     public Color wrongColor;
+    public Color endColor;
     int blankValue;
     public int blankX = 0, blankY = 0;
     public Image background;
     Collider2D anotherCol;
-    Transform blank;
+    public Transform blank;
 
     private void Awake()
     {

@@ -5,5 +5,6 @@ using System.IO;
 public class LevelModel
 {
     public string[,] ArrayModel;
+    public int[,] ArrayIndex;
     public int[,] ArrayValue;
 }

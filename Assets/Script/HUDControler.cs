@@ -70,6 +70,11 @@ public class HUDControler : MonoBehaviour
                 break;
             case HUDState.HintText:
                 GetComponent<Text>().text = GameManager.instance.playerData.hint.ToString();
+                if (GameManager.instance.playerData.hint == 0)
+                {
+                    GetComponent<Text>().text = "";
+                }
+
                 break;
             case HUDState.MoneyText:
                 if (SceneManager.GetActiveScene().name == "challenge" || SceneManager.GetActiveScene().name == "level")

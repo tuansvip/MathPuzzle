@@ -39,6 +39,7 @@ public class GenerateMath : MonoBehaviour
     public int maxRange;
     public int maxValue;
     public int[,] values;
+    public int[,] indexMath;
     bool up = true, down = true, left = true, right = true;
     bool canChangeDir = true;
     int maxHide;
@@ -49,19 +50,47 @@ public class GenerateMath : MonoBehaviour
         switch (GameManager.instance.playerData.challenge)
         {
             case PlayerData.Challenge.Easy:
-                size = 8;
-                maxRange = 200;
-                maxHide = 2;
+                if (PlayerPrefs.GetInt("EasyCount") < 11)
+                {
+                    size = 10;
+                    maxHide = 2;
+                    maxRange = 70;
+                }
+                else
+                {
+                    size = 10;
+                    maxRange = 200;
+                    maxHide = 2;
+                }
                 break;
             case PlayerData.Challenge.Medium:
-                size = 13;
-                maxRange = 500;
-                maxHide = 3;
+                if (PlayerPrefs.GetInt("NormalCount") < 11)
+                {
+                    size = 13;
+                    maxRange = 70;
+                    maxHide = 3;
+
+                }
+                else
+                {
+                    size = 13;
+                    maxRange = 500;
+                    maxHide = 3;
+                }
                 break;
             case PlayerData.Challenge.Hard:
-                size = 13;
-                maxRange = 500;
-                maxHide = 3;
+                if (PlayerPrefs.GetInt("HardCount") < 11)
+                {
+                    size = 13;
+                    maxRange = 70;
+                    maxHide = 3;
+                }
+                else
+                {
+                    size = 13;
+                    maxRange = 500;
+                    maxHide = 3;
+                }
                 break;
             case PlayerData.Challenge.Level:
                 {
@@ -70,19 +99,20 @@ public class GenerateMath : MonoBehaviour
                         case GameManager.Difficult.Easy:
                             if (GameManager.instance.playerData.currentLevel < 50)
                             {
-                                size = 5;
+                                size = 10;
                                 maxRange = 20 + GameManager.instance.playerData.currentLevel;
-                                if (maxRange > 500) maxRange = 500;
-                                maxValue = 75 + GameManager.instance.playerData.currentLevel;
+                                if (maxRange > 100) maxRange = 100;
+                                maxValue = 100;
                                 maxHide = 2;
 
-                            } else
+                            }
+                            else
                             {
-                                size = 8;
+                                size = 10;
                                 maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
                                 if (maxRange > 500) maxRange = 500;
                                 maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
-                                maxHide = 2; 
+                                maxHide = 2;
                             }
                             break;
                         case GameManager.Difficult.Medium:
@@ -90,10 +120,11 @@ public class GenerateMath : MonoBehaviour
                             {
                                 size = 10;
                                 maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
-                                maxValue = 75 + GameManager.instance.playerData.currentLevel * 2;
-                                if (maxRange > 500) maxRange = 500;
+                                maxValue = 100;
+                                if (maxRange > 100) maxRange = 100;
                                 maxHide = 3;
-                            } else
+                            }
+                            else
                             {
                                 size = 13;
                                 maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
@@ -108,9 +139,10 @@ public class GenerateMath : MonoBehaviour
                                 size = 10;
                                 maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
                                 maxValue = 75 + GameManager.instance.playerData.currentLevel * 2;
-                                if (maxRange > 500) maxRange = 500;
+                                if (maxRange > 100) maxRange = 100;
                                 maxHide = 3;
-                            } else
+                            }
+                            else
                             {
                                 size = 13;
                                 maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
@@ -140,13 +172,14 @@ public class GenerateMath : MonoBehaviour
         {
             gridModel = new string[size, size];
             values = new int[size, size];
+            indexMath = new int[size, size];
             GenerateModel();
             while (!canPlay)
             {
                 switch (GameManager.instance.playerData.challenge)
                 {
                     case PlayerData.Challenge.Easy:
-                        if (NumberOfBlank() < 2 || NumberOfBlank() > 5)
+                        if (NumberOfBlank() < 4 || NumberOfBlank() > 6)
                         {
                             cellAnswer = new List<GameObject>();
                             cellBlank = new List<GameObject>();
@@ -163,7 +196,7 @@ public class GenerateMath : MonoBehaviour
                         }
                         break;
                     case PlayerData.Challenge.Medium:
-                        if (NumberOfBlank() < 6 || NumberOfBlank() > 9)
+                        if (NumberOfBlank() < 7 || NumberOfBlank() > 10)
                         {
                             cellAnswer = new List<GameObject>();
                             cellBlank = new List<GameObject>();
@@ -180,7 +213,7 @@ public class GenerateMath : MonoBehaviour
                         }
                         break;
                     case PlayerData.Challenge.Hard:
-                        if (NumberOfBlank() < 10)
+                        if (NumberOfBlank() < 11)
                         {
                             cellAnswer = new List<GameObject>();
                             cellBlank = new List<GameObject>();
@@ -203,13 +236,15 @@ public class GenerateMath : MonoBehaviour
                                 case GameManager.Difficult.Easy:
                                     if (GameManager.instance.playerData.currentLevel < 50)
                                     {
-                                        if (NumberOfBlank() < 2 || NumberOfBlank() > 4)
+                                        if (NumberOfBlank() < 3 || NumberOfBlank() > 5)
                                         {
                                             cellAnswer = new List<GameObject>();
                                             cellBlank = new List<GameObject>();
                                             dir = Directions.right;
                                             grid = new GameObject[size, size];
                                             gridModel = new string[size, size];
+                                            indexMath = new int[size, size];
+
                                             values = new int[size, size];
                                             up = true; down = true; left = true; right = true;
                                             GenerateModel();
@@ -221,13 +256,14 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     else
                                     {
-                                        if (NumberOfBlank() < 3 || NumberOfBlank() > 5)
+                                        if (NumberOfBlank() < 4 || NumberOfBlank() > 6)
                                         {
                                             cellAnswer = new List<GameObject>();
                                             cellBlank = new List<GameObject>();
                                             dir = Directions.right;
                                             grid = new GameObject[size, size];
                                             gridModel = new string[size, size];
+                                            indexMath = new int[size, size];
                                             values = new int[size, size];
                                             up = true; down = true; left = true; right = true;
                                             GenerateModel();
@@ -241,13 +277,14 @@ public class GenerateMath : MonoBehaviour
                                 case GameManager.Difficult.Medium:
                                     if (GameManager.instance.playerData.currentLevel < 50)
                                     {
-                                        if (NumberOfBlank() < 5 || NumberOfBlank() > 7)
+                                        if (NumberOfBlank() < 6 || NumberOfBlank() > 8)
                                         {
                                             cellAnswer = new List<GameObject>();
                                             cellBlank = new List<GameObject>();
                                             dir = Directions.right;
                                             grid = new GameObject[size, size];
                                             gridModel = new string[size, size];
+                                            indexMath = new int[size, size];
                                             values = new int[size, size];
                                             up = true; down = true; left = true; right = true;
                                             GenerateModel();
@@ -259,13 +296,14 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     else
                                     {
-                                        if (NumberOfBlank() < 6 || NumberOfBlank() > 9)
+                                        if (NumberOfBlank() < 7 || NumberOfBlank() > 10)
                                         {
                                             cellAnswer = new List<GameObject>();
                                             cellBlank = new List<GameObject>();
                                             dir = Directions.right;
                                             grid = new GameObject[size, size];
                                             gridModel = new string[size, size];
+                                            indexMath = new int[size, size];
                                             values = new int[size, size];
                                             up = true; down = true; left = true; right = true;
                                             GenerateModel();
@@ -279,13 +317,14 @@ public class GenerateMath : MonoBehaviour
                                 case GameManager.Difficult.Hard:
                                     if (GameManager.instance.playerData.currentLevel < 50)
                                     {
-                                        if (NumberOfBlank() < 8)
+                                        if (NumberOfBlank() < 9)
                                         {
                                             cellAnswer = new List<GameObject>();
                                             cellBlank = new List<GameObject>();
                                             dir = Directions.right;
                                             grid = new GameObject[size, size];
                                             gridModel = new string[size, size];
+                                            indexMath = new int[size, size];
                                             values = new int[size, size];
                                             up = true; down = true; left = true; right = true;
                                             GenerateModel();
@@ -297,13 +336,14 @@ public class GenerateMath : MonoBehaviour
                                     }
                                     else
                                     {
-                                        if (NumberOfBlank() < 10)
+                                        if (NumberOfBlank() < 11)
                                         {
                                             cellAnswer = new List<GameObject>();
                                             cellBlank = new List<GameObject>();
                                             dir = Directions.right;
                                             grid = new GameObject[size, size];
                                             gridModel = new string[size, size];
+                                            indexMath = new int[size, size];
                                             values = new int[size, size];
                                             up = true; down = true; left = true; right = true;
                                             GenerateModel();
@@ -325,6 +365,7 @@ public class GenerateMath : MonoBehaviour
                             dir = Directions.right;
                             grid = new GameObject[size, size];
                             gridModel = new string[size, size];
+                            indexMath = new int[size, size];
                             values = new int[size, size];
                             up = true; down = true; left = true; right = true;
                             GenerateModel();
@@ -394,11 +435,11 @@ public class GenerateMath : MonoBehaviour
                     cellAnswer[i].GetComponent<Answer>().startPosition = cellAnswer[j].GetComponent<Answer>().startPosition;
                     cellAnswer[i].GetComponent<Answer>().SetTarget(cellAnswer[j].GetComponent<Answer>().targetPosition);
                     cellAnswer[j].GetComponent<Answer>().startPosition = tempFs;
-                    cellAnswer[j].GetComponent<Answer>().SetTarget(tempTarget);               
+                    cellAnswer[j].GetComponent<Answer>().SetTarget(tempTarget);
                     Swap(cellAnswer, i, j);
                 }
-                
-            }           
+
+            }
         }
         bool check = true;
         for (int i = 0; i < cellAnswer.Count - 1; i++)
@@ -419,7 +460,7 @@ public class GenerateMath : MonoBehaviour
     }
     public void GenerateGrid()
     {
-        int lineCount = 8/size;
+        int lineCount = 8 / size;
         Vector3 center = Vector3.zero;
         float maxX = float.MinValue, minX = float.MaxValue, maxY = float.MinValue, minY = float.MaxValue;
         int count = 0;
@@ -427,36 +468,42 @@ public class GenerateMath : MonoBehaviour
         {
             for (int j = 0; j < size; j++)
             {
-                Vector3 spawnPoint = new Vector3(i  + startPoint.position.x, j + startPoint.position.y, 0);
+                Vector3 spawnPoint = new Vector3(i + startPoint.position.x, j + startPoint.position.y, 0);
                 switch (gridModel[i, j])
                 {
                     case "+":
-                        grid[i,j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
+                        grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].GetComponent<Op>().op = Op.Operations.plus;
-/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-*/                        break;
+                        grid[i, j].GetComponent<Op>().index = indexMath[i, j];
+                        /*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+                        */
+                        break;
                     case "-":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-*/
+                        grid[i, j].GetComponent<Op>().index = indexMath[i, j];
+                        /*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+                        */
                         grid[i, j].GetComponent<Op>().op = Op.Operations.minus;
                         break;
                     case "*":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-*/
+                        grid[i, j].GetComponent<Op>().index = indexMath[i, j];
+                        /*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+                        */
                         grid[i, j].GetComponent<Op>().op = Op.Operations.multiply;
                         break;
                     case "/":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-*/
+                        grid[i, j].GetComponent<Op>().index = indexMath[i, j];
+                        /*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+                        */
                         grid[i, j].GetComponent<Op>().op = Op.Operations.divide;
                         break;
                     case "=":
                         grid[i, j] = Instantiate(opPrefab, spawnPoint, Quaternion.identity, spawn);
-/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-*/
+                        grid[i, j].GetComponent<Op>().index = indexMath[i, j];
+                        /*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+                        */
                         grid[i, j].GetComponent<Op>().op = Op.Operations.equal;
                         break;
                     case "empty":
@@ -467,15 +514,18 @@ public class GenerateMath : MonoBehaviour
                         grid[i, j].GetComponent<Blank>().value = values[i, j];
                         grid[i, j].GetComponent<Blank>().x = i;
                         grid[i, j].GetComponent<Blank>().y = j;
-/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-*/                        cellBlank.Add(grid[i, j]);
-                        
+                        grid[i, j].GetComponent<Blank>().index = indexMath[i, j];
+                        /*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+                        */
+                        cellBlank.Add(grid[i, j]);
 
-                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % 10) * 1.1f * 8/13, startAnsPoint.position.y - (count / 10) * 1.1f * 8/13);
+
+                        Vector3 ansPoint = new Vector3(startAnsPoint.position.x + (count % 10) * 1.3f * 8 / 13, startAnsPoint.position.y - (count / 10) * 1.3f * 8 / 13);
                         GameObject cell = Instantiate(answerPrefab, ansPoint, Quaternion.identity, spawnAns);
                         cell.GetComponent<Answer>().startScale = Vector3.one * 8f / 13;
                         cell.transform.localScale = Vector3.one * 8f / 13;
                         cell.GetComponent<Number>().value = values[i, j];
+                        cell.GetComponent<Number>().index = indexMath[i, j];
                         cellAnswer.Add(cell);
                         count++;
                         break;
@@ -483,70 +533,77 @@ public class GenerateMath : MonoBehaviour
                         grid[i, j] = Instantiate(numberPrefab, spawnPoint, Quaternion.identity, spawn);
                         grid[i, j].transform.SetParent(spawn);
                         grid[i, j].GetComponent<Number>().value = values[i, j];
-/*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
-*/
+                        grid[i, j].GetComponent<Number>().index = indexMath[i, j];
+                        /*                        grid[i, j].transform.localScale = Vector3.one * (8f / ((float)size));
+                        */
                         break;
                 }
-                if (grid[i,j].transform.position.x > maxX)
+                if (grid[i, j].transform.position.x > maxX)
                 {
                     maxX = grid[i, j].transform.position.x;
                 }
-                if (grid[i,j].transform.position.y > maxY)
+                if (grid[i, j].transform.position.y > maxY)
                 {
                     maxY = grid[i, j].transform.position.y;
                 }
-                if (grid[i,j].transform.position.x < minX)
+                if (grid[i, j].transform.position.x < minX)
                 {
                     minX = grid[i, j].transform.position.x;
                 }
-                if (grid[i,j].transform.position.y < minY)
+                if (grid[i, j].transform.position.y < minY)
                 {
                     minY = grid[i, j].transform.position.y;
                 }
             }
         }
-        center = new Vector3((maxX + minX)  / 2f, (maxY + minY) / 2f, 0);
-        
-        spawn.position += transform.position -  center;
-/*        if (maxX - minX <= maxY - minY)
-        {
-            spawnParent.localScale = Vector3.one * (8f / (maxY - minY + 1));
-        }
-        else
-        {
-            spawnParent.localScale = Vector3.one * (8f / (maxX - minX + 1));
-        }*/ spawnParent.localScale = Vector3.one * 8f/13;
+        center = new Vector3((maxX + minX) / 2f, (maxY + minY) / 2f, 0);
+
+        spawn.position += transform.position - center;
+        /*        if (maxX - minX <= maxY - minY)
+                {
+                    spawnParent.localScale = Vector3.one * (8f / (maxY - minY + 1));
+                }
+                else
+                {
+                    spawnParent.localScale = Vector3.one * (8f / (maxX - minX + 1));
+                }*/
+        spawnParent.localScale = Vector3.one * 8f / 13;
     }
+        int mathCounter = 0;
     public void GenerateModel()
     {
+        mathCounter = 0;
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
             {
                 gridModel[i, j] = "empty";
+                indexMath[i, j] = 0;
             }
         }
         int x, y;
         do
         {
-            x = 0; y = Random.Range(0,size);
+            x = 0; y = Random.Range(0, size);
         } while (y % 2 != 0);
 
         //generate model
-        do 
+        do
         {
+            
             int ranPos, ranDir;
             bool check = false;
             do
             {
+
                 switch (dir)
                 {
                     case Directions.up:
-                        posX[0] = x; posY[0] = y;
-                        posX[1] = x; posY[1] = y + 1;
+                        posX[0] = x; posY[4] = y;
+                        posX[1] = x; posY[3] = y + 1;
                         posX[2] = x; posY[2] = y + 2;
-                        posX[3] = x; posY[3] = y + 3;
-                        posX[4] = x; posY[4] = y + 4;
+                        posX[3] = x; posY[1] = y + 3;
+                        posX[4] = x; posY[0] = y + 4;
                         GenerateValue();
 
                         up = false;
@@ -567,11 +624,11 @@ public class GenerateMath : MonoBehaviour
                         {
                             check = false;
                             ranDir = Random.Range(0, 2);
-                            
+
                             switch (ranDir)
                             {
                                 case 0:
-                                    if (x - 4 < 0 || gridModel[x - 1, y] != "empty" || gridModel[x - 3, y] != "empty" )
+                                    if (x - 4 < 0 || gridModel[x - 1, y] != "empty" || gridModel[x - 3, y] != "empty")
                                     {
                                         left = false;
                                         check = false;
@@ -723,11 +780,11 @@ public class GenerateMath : MonoBehaviour
                         } while (canChangeDir);
                         break;
                     case Directions.left:
-                        posX[0] = x; posY[0] = y;
-                        posX[1] = x - 1; posY[1] = y;
+                        posX[4] = x; posY[0] = y;
+                        posX[3] = x - 1; posY[1] = y;
                         posX[2] = x - 2; posY[2] = y;
-                        posX[3] = x - 3; posY[3] = y;
-                        posX[4] = x - 4; posY[4] = y;
+                        posX[1] = x - 3; posY[3] = y;
+                        posX[0] = x - 4; posY[4] = y;
                         GenerateValue();
                         left = false;
                         right = false;
@@ -840,7 +897,7 @@ public class GenerateMath : MonoBehaviour
                             switch (ranDir)
                             {
                                 case 0:
-                                    if (y - 4 < 0 || gridModel[x, y -1] != "empty" || gridModel[x, y - 3] != "empty")
+                                    if (y - 4 < 0 || gridModel[x, y - 1] != "empty" || gridModel[x, y - 3] != "empty")
                                     {
                                         down = false;
                                         check = false;
@@ -902,7 +959,7 @@ public class GenerateMath : MonoBehaviour
                         } while (canChangeDir);
                         break;
                 }
-            } while(canChangeDir);
+            } while (canChangeDir);
         } while (canChangeDir);
     }
     public void GenerateValue()
@@ -912,7 +969,12 @@ public class GenerateMath : MonoBehaviour
         {
             return;
         }
-
+        mathCounter++;
+        indexMath[posX[0], posY[0]] = mathCounter;
+        indexMath[posX[1], posY[1]] = mathCounter;
+        indexMath[posX[2], posY[2]] = mathCounter;
+        indexMath[posX[3], posY[3]] = mathCounter;
+        indexMath[posX[4], posY[4]] = mathCounter;
         if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
         {
             gridModel[posX[3], posY[3]] = "=";
@@ -920,8 +982,8 @@ public class GenerateMath : MonoBehaviour
             do
             {
                 gridModel[posX[1], posY[1]] = RanOp();
-                values[posX[0], posY[0]] = Random.Range(1, maxRange);
-                values[posX[2], posY[2]] = Random.Range(1, maxRange);
+                values[posX[0], posY[0]] = Random.Range(2, maxRange);
+                values[posX[2], posY[2]] = Random.Range(2, maxRange);
                 switch (gridModel[posX[1], posY[1]])
                 {
                     case "+":
@@ -932,6 +994,7 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = (values[posX[0], posY[0]] - values[posX[2], posY[2]]);
                         break;
                     case "*":
+
                         if (values[posX[0], posY[0]] * values[posX[2], posY[2]] > maxValue) continue;
                         values[posX[4], posY[4]] = (values[posX[0], posY[0]] * values[posX[2], posY[2]]);
                         break;
@@ -979,12 +1042,12 @@ public class GenerateMath : MonoBehaviour
                 switch (gridModel[posX[1], posY[1]])
                 {
                     case "+":
-                        values[posX[2], posY[2]] = Random.Range(1, maxRange);
+                        values[posX[2], posY[2]] = Random.Range(2, maxRange);
                         if (values[posX[4], posY[4]] - values[posX[2], posY[2]] < 0) continue;
                         values[posX[0], posY[0]] = (values[posX[4], posY[4]] - values[posX[2], posY[2]]);
                         break;
                     case "-":
-                        values[posX[2], posY[2]] = Random.Range(1, maxRange);
+                        values[posX[2], posY[2]] = Random.Range(2, maxRange);
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] + values[posX[2], posY[2]];
                         break;
                     case "*":
@@ -997,7 +1060,7 @@ public class GenerateMath : MonoBehaviour
                         break;
                     case "/":
                         values[posX[2], posY[2]] = Random.Range(2, 6);
-                       
+
                         if (values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue) continue;
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] * values[posX[2], posY[2]];
                         break;
@@ -1029,7 +1092,7 @@ public class GenerateMath : MonoBehaviour
                         break;
                 }
                 isdone = true;
-            }while (!isdone);
+            } while (!isdone);
         }
         else
         if (gridModel[posX[0], posY[0]] == "empty" && gridModel[posX[4], posY[4]] == "empty" && gridModel[posX[2], posY[2]] != "empty")
@@ -1042,12 +1105,12 @@ public class GenerateMath : MonoBehaviour
                 switch (gridModel[posX[1], posY[1]])
                 {
                     case "+":
-                        gridModel[posX[4], posY[4]] = Random.Range(1, maxRange).ToString();
+                        gridModel[posX[4], posY[4]] = Random.Range(2, maxRange).ToString();
                         if ((int.Parse(gridModel[posX[4], posY[4]]) - int.Parse(gridModel[posX[2], posY[2]])) < 0) continue;
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) - int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
                     case "-":
-                        gridModel[posX[4], posY[4]] = Random.Range(1, maxRange).ToString();
+                        gridModel[posX[4], posY[4]] = Random.Range(2, maxRange).ToString();
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) + int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
                     case "*":
@@ -1089,7 +1152,7 @@ public class GenerateMath : MonoBehaviour
                         gridModel[posX[4], posY[4]] = "blank";
                         break;
                 }
-            } while (!isdone);  
+            } while (!isdone);
         }
         else
         if (gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
@@ -1102,12 +1165,12 @@ public class GenerateMath : MonoBehaviour
                 switch (gridModel[posX[1], posY[1]])
                 {
                     case "+":
-                        values[posX[2], posY[2]] = Random.Range(1, maxRange);
+                        values[posX[2], posY[2]] = Random.Range(2, maxRange);
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] + values[posX[2], posY[2]];
                         break;
                     case "-":
-                        values[posX[2], posY[2]] = Random.Range(1, maxRange);
-                        if (values[posX[0], posY[0]] - values[posX[2], posY[2] ] < 0) continue;
+                        values[posX[2], posY[2]] = Random.Range(2, maxRange);
+                        if (values[posX[0], posY[0]] - values[posX[2], posY[2]] < 0) continue;
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] - values[posX[2], posY[2]];
                         break;
                     case "*":
@@ -1183,7 +1246,7 @@ public class GenerateMath : MonoBehaviour
                         }
                         break;
                     case "/":
-                        if(values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue) continue;
+                        if (values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue) continue;
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] * values[posX[2], posY[2]];
                         break;
                 }
@@ -1244,7 +1307,7 @@ public class GenerateMath : MonoBehaviour
                                 if (values[posX[4], posY[4]] - values[posX[0], posY[0]] < 0) continue;
                                 values[posX[2], posY[2]] = values[posX[4], posY[4]] - values[posX[0], posY[0]];
                                 gridModel[posX[1], posY[1]] = "+";
-                                
+
                             }
                             else
                             {

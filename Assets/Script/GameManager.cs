@@ -1,5 +1,7 @@
 ﻿using DG.Tweening;
+using DG.Tweening.Plugins;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -66,7 +68,7 @@ public class GameManager : MonoBehaviour
     public RenderTexture myRenderTexture;
     public Camera winCamera;
     public ParticleSystem winParticle;
-    public ParticleSystem winParticle2;
+    public Color winColor;
 
     [Header("#Game Data")]
     public int maxLevel = 2004;
@@ -82,8 +84,11 @@ public class GameManager : MonoBehaviour
     string encryptKey = "iamnupermane4133bbce2ea2315a1916";
     public bool isPause = false;
     int loseCount;
+
     private void Awake()
     {
+        DOTween.Clear();
+        DOTween.SetTweensCapacity(2000, 500);
         loseCount = 0;
         if (instance == null)
         {
@@ -150,16 +155,67 @@ public class GameManager : MonoBehaviour
 
         isStart = true;
         //auto generate level
-/*        if (SceneManager.GetActiveScene().name == "sample" && playerData.challenge == PlayerData.Challenge.Level && playerData.currentLevel < 2005)
+/*        if (SceneManager.GetActiveScene().name == "challenge" && playerData.challenge == PlayerData.Challenge.Level && playerData.currentLevel < 2005)
         {
-            Victory();
+            WinGame();
             SceneManager.LoadScene("menu");
+
         }*/
         //
         if (IsMobile())
         {
             ResizeGameplay();
         }
+    }
+    private void WinGame()
+    {
+        isStart = false;
+        isPause = true;
+        winParticle.Play();
+        switch (playerData.challenge)
+        {
+            case PlayerData.Challenge.Level:
+                switch (level)
+                {
+                    case Difficult.Easy:
+                        SavePlayerData(playerData);
+
+                        break;
+                    case Difficult.Medium:
+                        SavePlayerData(playerData);
+                        break;
+                    case Difficult.Hard:
+                        SavePlayerData(playerData);
+                        break;
+                }
+                if (playerData.challenge == PlayerData.Challenge.Level && playerData.currentLevel < maxLevel)
+                {
+                    playerData.currentLevel++;
+                }
+                playerData.hasLevel = false;
+                break;
+            case PlayerData.Challenge.Daily:
+                SavePlayerData(playerData);
+                break;
+            case PlayerData.Challenge.Easy:
+                PlayerPrefs.SetInt("EasyCount", PlayerPrefs.GetInt("EasyCount") + 1);
+                SavePlayerData(playerData);
+                break;
+            case PlayerData.Challenge.Medium:
+                PlayerPrefs.SetInt("NormalCount", PlayerPrefs.GetInt("NormalCount") + 1);
+                SavePlayerData(playerData);
+                break;
+            case PlayerData.Challenge.Hard:
+                PlayerPrefs.SetInt("HardCount", PlayerPrefs.GetInt("HardCount") + 1);
+                SavePlayerData(playerData);
+                break;
+        }
+        if (playerData.challenge == PlayerData.Challenge.Daily)
+        {
+            playerData.daily[playerData.day] = true;
+        }
+        SavePlayerData(playerData);
+        winPanel.SetActive(true);
     }
     public float SafeAreaOffset()
     {
@@ -183,7 +239,6 @@ public class GameManager : MonoBehaviour
     {
         float screenRatio = (float)Screen.height / (float)Screen.width;
 
-        // Xác định loại thiết bị dựa trên kích thước màn hình
         if (screenRatio < 1.77f)
         {
             return false;
@@ -207,7 +262,6 @@ public class GameManager : MonoBehaviour
             ans.targetPosition += Vector3.up * yShift + Vector3.up * SafeAreaOffset();
         }
     }
-
     static bool CheckLevelExistence(string name)
     {
         string prefabPath = "Assets/Level/" + name;
@@ -229,10 +283,10 @@ public class GameManager : MonoBehaviour
         levelModel.ArrayModel = playzone.gridModel;
         Debug.Log("ArrayModel: " + levelModel.ArrayModel.Length);
 
+        levelModel.ArrayIndex = playzone.indexMath;
+
         levelModel.ArrayValue = playzone.values;
         Debug.Log("ArrayValue: " + levelModel.ArrayValue.Length);
-        GameObject[] listAns = GameObject.FindGameObjectsWithTag("AnswerCell");
-
         string json = JsonConvert.SerializeObject(levelModel);
         File.WriteAllText("Assets/Resources/Level/" + fileName, json);
         Debug.Log("Level exist " + File.Exists("Assets/Resources/Level/" + fileName));
@@ -246,15 +300,16 @@ public class GameManager : MonoBehaviour
         levelModel = JsonConvert.DeserializeObject<LevelModel>(level);
         playzone.gridModel = levelModel.ArrayModel;
         playzone.values = levelModel.ArrayValue;
+        playzone.indexMath = levelModel.ArrayIndex;
     }
-
     public void AddState()
     {
-        answerPositionHistory.Push(ansSpawn.GetComponentsInChildren<Answer>().Select(x => x.targetPosition).ToList());
+        answerPositionHistory.Push(ansSpawn.GetComponentsInChildren<Answer>()
+            .Select(x => x.targetPosition).ToList());
     }
     public void UndoState()
     {
-        if (answerPositionHistory.Count == 0) return;
+        if (answerPositionHistory.Count == 0 || isPause) return;
         List<Vector3> tempPos = answerPositionHistory.Pop();
         for (int i = 0; i < tempPos.Count; i++)
         {
@@ -262,7 +317,6 @@ public class GameManager : MonoBehaviour
         }
 
     }
-
     private void Update()
     {
      
@@ -277,8 +331,7 @@ public class GameManager : MonoBehaviour
             Defeat();
         }
     }
-
-    private void Defeat()
+    public void Defeat()
     {
         SFXManager.instance.PlayLose();
         isStart = false;
@@ -292,28 +345,87 @@ public class GameManager : MonoBehaviour
         losePanel.SetActive(true);
         if (loseCount > 0)
         {
-            GameObject.Find("Buy +60s").GetComponent<Button>().onClick.RemoveListener(Buy60s);
-            GameObject.Find("Buy +60s").GetComponent<Button>().onClick.AddListener(Home);
+            GameObject.Find("Buy +60s").GetComponent<Button>()
+                .onClick.RemoveListener(Buy60s);
+            GameObject.Find("Buy +60s").GetComponent<Button>()
+                .onClick.AddListener(Home);
             GameObject.Find("+60s Text").GetComponent<TextMeshProUGUI>().text = "Home";
-            GameObject.Find("+45s").GetComponent<Button>().interactable = false;
+            GameObject.Find("+45s").GetComponent<Button>()
+                .interactable = false;
         }
     }
-
     public void Victory()
     {
         SFXManager.instance.PlayWin();
         isStart = false;
         isPause = true;
-
         winParticle.Play();
-        winParticle2.Play();
+        StartCoroutine(VictoryEffect());
+
+    }
+    private IEnumerator VictoryEffect()
+    {
+        
+        IEnumerable<int> allValues = playzone.indexMath.Cast<int>();
+        int maxIndex = allValues.Max();
+        Debug.Log("Max index: " + maxIndex);
+        for (int i = maxIndex; i > 0; i--)
+        {
+            for (int j = 0; j < spawn.transform.childCount; j++)
+            {
+                Debug.Log("Index: " + i);
+                switch (spawn.transform.GetChild(j).tag)
+                {
+                    case "NumberCell":
+                        if (spawn.transform.GetChild(j).GetComponent<Number>().index == i)
+                        {
+                            if (spawn.transform.GetChild(j).GetComponent<Number>().bg!= null)
+                            {
+                                spawn.transform.GetChild(j).GetComponent<Number>().bg
+                                    .DOColor(winColor, 0.3f);
+                            }
+                            Debug.Log("Found");
+                            yield return new WaitForSeconds(0.08f);
+                        }
+                        break;
+                    case "OpCell":
+                        if (spawn.transform.GetChild(j).GetComponent<Op>().index == i)
+                        {
+                            if (spawn.transform.GetChild(j).GetComponent<Op>().bg != null)
+                            {
+                                spawn.transform.GetChild(j).GetComponent<Op>().bg
+                                    .DOColor(winColor, 0.3f);
+                            }
+                            Debug.Log("Found");
+
+                            yield return new WaitForSeconds(0.08f);
+                        }
+
+                        break;
+                    case "BlankCell":
+
+                        if (spawn.transform.GetChild(j).GetComponent<Blank>().index == i)
+                        {
+                            if (spawn.transform.GetChild(j).GetComponent<Blank>().bg != null)
+                            {
+                                spawn.transform.GetChild(j).GetComponent<Blank>().bg
+                                    .DOColor(winColor, 0.3f);
+                            }
+                            Debug.Log("Found");
+
+                            yield return new WaitForSeconds(0.08f);
+                        }
+                        break;
+                }
+
+            }
+
+        }
         StartCoroutine(ShowPanelWin());
     }
-
-
     private IEnumerator ShowPanelWin()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
         switch (playerData.challenge)
         {
             case PlayerData.Challenge.Level:
@@ -341,18 +453,24 @@ public class GameManager : MonoBehaviour
                 break;
             case PlayerData.Challenge.Daily:
                 StartCoroutine(MoneyIncrease(25));
+                winPanel.transform.GetChild(1).gameObject.SetActive(true);
+                winPanel.transform.GetChild(2).gameObject.SetActive(false);
+                winPanel.transform.GetChild(3).gameObject.SetActive(false);
                 SavePlayerData(playerData);
                 break;
             case PlayerData.Challenge.Easy:
                 StartCoroutine(MoneyIncrease(3));
+                PlayerPrefs.SetInt("EasyCount", PlayerPrefs.GetInt("EasyCount") + 1);
                 SavePlayerData(playerData);
                 break;
             case PlayerData.Challenge.Medium:
                 StartCoroutine(MoneyIncrease(4));
+                PlayerPrefs.SetInt("NormalCount", PlayerPrefs.GetInt("NormalCount") + 1);
                 SavePlayerData(playerData);
                 break;
             case PlayerData.Challenge.Hard:
                 StartCoroutine(MoneyIncrease(7));
+                PlayerPrefs.SetInt("HardCount", PlayerPrefs.GetInt("HardCount") + 1);
                 SavePlayerData(playerData);
                 break;
         }
@@ -365,18 +483,18 @@ public class GameManager : MonoBehaviour
         ShowWinImg();
         StartCoroutine(MoveMoney(10, GameObject.Find("CoinWin").GetComponent<RectTransform>()));
     }
-
     public void ShowWinImg()
     {
         playHUD.SetActive(false);
         pool.transform.GetChild(0).gameObject.SetActive(false);
         HUD.GetComponent<Canvas>().sortingOrder = -20;
-        gameplay.transform.position += Vector3.up * 1.3f;
-        gameplay.transform.localScale /= 1.5f;
+        if (gameplay != null)
+        {
+            gameplay.transform.DOMove(gameplay.transform.position + Vector3.up * 1.3f, 0.7f);
+            gameplay.transform.DOScale(gameplay.transform.localScale / 1.5f, 0.7f);
+        }
 
     }
-    
-
     public void NextLevel()
     {
         SFXManager.instance.PlayClick();
@@ -391,7 +509,6 @@ public class GameManager : MonoBehaviour
         json = Encryption.EncryptString(encryptKey, json);
         File.WriteAllText(savePath, json);
     }
-
     public PlayerData LoadPlayerData()
     {
         if (File.Exists(savePath))
@@ -437,13 +554,14 @@ public class GameManager : MonoBehaviour
         }
         return win;
     }
-
     public void Home()
     {
         SFXManager.instance.PlayClick();
         UnityEvent e = new UnityEvent();
         e.AddListener(() =>
         {
+            DOTween.KillAll();
+            DOTween.Clear();
             Time.timeScale = 1;
             UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
         });
@@ -456,15 +574,18 @@ public class GameManager : MonoBehaviour
         eReward.AddListener(() =>
         {
             // luồng game sau khi tắt quảng cáo ( tặng thưởng cho user )
+            DOTween.KillAll();
+            DOTween.Clear();
             SFXManager.instance.PlayClick();
             Time.timeScale = 1;
             isHighscore = false;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         });
         ACEPlay.Bridge.BridgeController.instance.ShowRewarded("placement", eReward, null);
     }
     public void Pause()
     {
+        if (isPause) return;
         isPause = true;
         SFXManager.instance.PlayClick();
         Time.timeScale = 1;
@@ -481,7 +602,6 @@ public class GameManager : MonoBehaviour
         losePanel.SetActive(false);
         playHUD.SetActive(true);
     }
-
     public void SaveSetting()
     {
         playerData.isSoundOn = soundToggle.GetComponent<ToggleSwitch>().isOn;
@@ -491,7 +611,8 @@ public class GameManager : MonoBehaviour
     }
     public void Hint()
     {
-        if ((playerData.hint > 0 && !hintMoving) || (playerData.money >= 200 && !hintMoving))
+        if (isPause) return;
+        if (playerData.hint > 0 && !hintMoving)
         {
             hintMoving = true;
             List<GameObject> listAns = new List<GameObject>();
@@ -521,25 +642,17 @@ public class GameManager : MonoBehaviour
             }
             Color originalColor = ans.GetComponent<Answer>().bgColor;
             ans.GetComponent<Answer>().isHinting = true;
-            ans.transform.DOMove(targerTransform.position + Vector3.back * 2, 1f);
+            if (ans.transform != null)
+            {
+                ans.transform.DOMove(targerTransform.position + Vector3.back * 2, 1f);
+            }
             StartCoroutine(HintMoveBack(ans, originalTransform));
-            if (playerData.hint < 1 && playerData.money >= 200)
-            {
-                playerData.money -= 200;
-                GameObject minus200 = Instantiate(_200coinPrefab, GameObject.Find("MoneyGameplay").transform);
-                minus200.GetComponent<RectTransform>().position = GameObject.Find("MoneyGameplay").GetComponent<RectTransform>().position;
-                minus200.GetComponent<RectTransform>().DOMove(minus200.GetComponent<RectTransform>().position + Vector3.down, 1f);
-                minus200.GetComponent<Text>().DOColor(new Color(255, 0, 0, 0), 1f).OnComplete(() => Destroy(minus200));
-            }
-            else
-            {
-                 playerData.hint--;
-            }
+            playerData.hint--;
 
         }
         else
         {
-            if (playerData.money < 200 && playerData.hint < 1)
+            if (playerData.hint < 1)
             {
                 isPause = true;
                 SFXManager.instance.PlayClick();
@@ -553,10 +666,13 @@ public class GameManager : MonoBehaviour
     private IEnumerator HintMoveBack(GameObject ans, Transform originalTransform)
     {
         yield return new WaitForSeconds(1f);
-        ans.transform.DOMove(originalTransform.position, 1f).OnComplete(() => {
-            hintMoving = false;
-            ans.GetComponent<Answer>().isHinting = false;
-        });
+        if ( ans.transform != null)
+        {        
+            ans.transform.DOMove(originalTransform.position, 1f)
+                .OnComplete(() => {
+                hintMoving = false;
+                ans.GetComponent<Answer>().isHinting = false;});
+        }
     }
     public void HintAds()
     {
@@ -576,6 +692,7 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 1;
             isStart = true;
+            isPause = false;
             losePanel.SetActive(false);
             playzoneobj.SetActive(true);
             pool.SetActive(true);
@@ -586,14 +703,31 @@ public class GameManager : MonoBehaviour
             SavePlayerData(playerData);
             supportPanel.SetActive(false);
         }
+        else
+        {
+            if (checkBuy) return;
+            checkBuy = true;
+            outOfMoneyNoti.SetActive(true);
+            if (outOfMoneyNoti.GetComponent<RectTransform>().position.y == 0)
+            {
+                outOfMoneyNoti.GetComponent<RectTransform>()
+                    .DOMove(Vector3.down * 2, 1f)
+                    .SetDelay(0.5f).OnComplete(() => {
+                    outOfMoneyNoti.GetComponent<RectTransform>().position = new Vector3(0, 0, 105.010f);
+                    outOfMoneyNoti.SetActive(false);
+                    checkBuy = false;
+                }); 
+            }
+        }
     }
-    
     public void Buy60s()
     {
         if (playerData.money >= 150)
         {
+            checkBuy = true;
             Time.timeScale = 1;
             isStart = true;
+            isPause = false;
             StartCoroutine(MoneyDecrease(150));
             losePanel.SetActive(false);
             playzoneobj.SetActive(true);
@@ -601,7 +735,26 @@ public class GameManager : MonoBehaviour
             time += 60;
             loseCount++;
         }
+        else
+        {
+            if (checkBuy) return;
+            checkBuy = true;
+            outOfMoneyNoti.SetActive(true);
+            if (outOfMoneyNoti.GetComponent<RectTransform>() != null)
+            {
+                outOfMoneyNoti.GetComponent<RectTransform>()
+                    .DOMove(Vector3.down * 2, 1f)
+                    .SetDelay(0.5f)
+                    .OnComplete(() => {
+                    outOfMoneyNoti.GetComponent<RectTransform>().position = new Vector3(0, 0, 105.010f);
+                    outOfMoneyNoti.SetActive(false);
+                    checkBuy = false;
+                });
+            }
+        }
     }
+    public bool checkBuy = false;
+    public GameObject outOfMoneyNoti;
     public void Sorting()
     {
         if (isSorted)
@@ -676,6 +829,7 @@ public class GameManager : MonoBehaviour
             // luồng game sau khi tắt quảng cáo ( tặng thưởng cho user )
             Time.timeScale = 1;
             isStart = true;
+            isPause = false;
             losePanel.SetActive(false);
             playzoneobj.SetActive(true);
             pool.SetActive(true);
@@ -685,7 +839,6 @@ public class GameManager : MonoBehaviour
         ACEPlay.Bridge.BridgeController.instance.ShowRewarded("placement", eReward, null);
 
     }
-
     public GameObject coinPrefab;
     private IEnumerator MoveMoney(int count, RectTransform pack)
     {
@@ -699,10 +852,12 @@ public class GameManager : MonoBehaviour
             waypoints[2] = GameObject.Find("MoneyImg_Win").GetComponent<RectTransform>().position;
             waypoints[1] = new Vector3(Random.Range(pack.position.x, GameObject.Find("MoneyImg_Win").GetComponent<RectTransform>().position.x),
                                         Random.Range(pack.position.y, GameObject.Find("MoneyImg_Win").GetComponent<RectTransform>().position.y), 0);
-
-            coin1.transform.DOPath(waypoints, 0.5f, PathType.CatmullRom)
-                     .SetEase(Ease.OutQuad)
-                     .OnComplete(() => Destroy(coin1));
+            if (coin1.transform != null)
+            {
+                coin1.transform.DOPath(waypoints, 0.5f, PathType.CatmullRom)
+                         .SetEase(Ease.OutQuad)
+                         .OnComplete(() => Destroy(coin1));
+            }
         }
 
     }
@@ -717,7 +872,8 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(delay);
         }
         SavePlayerData(playerData);
-    }    public IEnumerator MoneyDecrease(int value)
+    }    
+    public IEnumerator MoneyDecrease(int value)
     {
         float delay = 0.1f;
         while (value > 0)
@@ -730,7 +886,6 @@ public class GameManager : MonoBehaviour
         SavePlayerData(playerData);
     }
 } 
-
 public class PlayerData
 {
     public enum Challenge

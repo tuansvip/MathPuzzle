@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 public class Op : MonoBehaviour
 {
+
     public enum Operations
     {
         plus,
@@ -15,7 +17,9 @@ public class Op : MonoBehaviour
         equal
     }
     public Operations op;
+    public Image bg;
     public TextMeshProUGUI textValue;
+    public int index = 0;
     private void Update()
     {
         switch (op)

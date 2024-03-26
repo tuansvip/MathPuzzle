@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class Calendar : MonoBehaviour
 {
-    public Color selectedColor, normalColor, passedColor, uninteracColor;
+    public Color selectedColor, normalColor, passedColor, uninteracColor, textColor;
     public GameObject adsIcon;
     public Scrollbar progressBar;
     int dayOffset, monthDays;
@@ -110,8 +110,10 @@ public class Calendar : MonoBehaviour
         {
             GameObject dayBtn = GameObject.Find("Slot " + i);
             dayBtn.GetComponent<Image>().color = MenuManager.instance.playerData.daily[i - dayOffset]? passedColor : normalColor;
+           dayBtn.transform.GetComponentInChildren<TextMeshProUGUI>().color =  textColor;
         }
         GameObject.Find("Slot " + day).GetComponent<Image>().color = selectedColor;
+        GameObject.Find("Slot " + day).transform.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;
         MenuManager.instance.playerData.day = day - dayOffset;
         MenuManager.instance.selectedDaily = day - dayOffset;
         MenuManager.instance.SavePlayerData(MenuManager.instance.playerData);

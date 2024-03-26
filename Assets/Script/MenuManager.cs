@@ -22,7 +22,7 @@ public class MenuManager : MonoBehaviour
 
     [Header("Panels")]
     public GameObject selectChalengePanel;
-    public GameObject homePanel, shopPanel, dailyPanel;
+    public GameObject homePanel, shopPanel, dailyPanel ,moregamePanel;
     public GameObject settingsPanel;
     public GameObject settingsPanel_Child;
     public GameObject menuBar;
@@ -57,6 +57,9 @@ public class MenuManager : MonoBehaviour
 
     private void Awake()
     {
+        DOTween.Clear();
+        DOTween.SetTweensCapacity(2000, 500);
+        Application.targetFrameRate = 144;
         instance = this;
         isStart = false;
         isSetting = false;
@@ -98,8 +101,6 @@ public class MenuManager : MonoBehaviour
             GameObject.Find("Pack4").GetComponent<Button>().interactable = false;
             GameObject.Find("Pack4 Text").GetComponent<Text>().text = "Purchased";
         }
-
-
     }
 
     private void Start()
@@ -121,10 +122,11 @@ public class MenuManager : MonoBehaviour
             SFXManager.instance.MuteSfx();
         }
         //Auto Generate Level
-        /*        if (playerData.currentLevel < 2005)
-                {
-                    StartGame(1);
-                }*/
+/*        if (playerData.currentLevel < 2005)
+        {
+            StartGame(1);
+        }*/
+        //
         SetBanner(true);
         ACEPlay.Bridge.BridgeController.instance.ShowBanner();
 
@@ -135,7 +137,8 @@ public class MenuManager : MonoBehaviour
     {
         if (check)
         {
-            menuBar.GetComponent<RectTransform>().DOMove(menuBar.GetComponent<RectTransform>().position + Vector3.up * 200, 0.25f)
+            menuBar.GetComponent<RectTransform>()
+                .DOMove(menuBar.GetComponent<RectTransform>().position + Vector3.up * 200, 0.25f)
                 .OnComplete(() => {
                     MenuBarBtn.instance.yOrigin = MenuBarBtn.instance.homeBtn.transform.position.y;
                     MenuBarBtn.instance.SelectHome();
@@ -179,6 +182,9 @@ public class MenuManager : MonoBehaviour
             json = Encryption.EncryptString(encryptKey, json);
             File.WriteAllText(savePath, json);
             json = Encryption.DecryptString(encryptKey, json);
+            PlayerPrefs.SetInt("HardCount", 0);
+            PlayerPrefs.SetInt("NormalCount", 0);
+            PlayerPrefs.SetInt("EasyCount", 0);
             return JsonUtility.FromJson<PlayerData>(json);
         }
     }
@@ -202,6 +208,8 @@ public class MenuManager : MonoBehaviour
 
     public void StartGame(int chalenge)
     {
+        DOTween.KillAll();
+        DOTween.Clear();
         switch (chalenge)
         {
             case 1:
@@ -259,24 +267,33 @@ public class MenuManager : MonoBehaviour
     }
     public void Home()
     {
-        homePanel.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
-        shopPanel.GetComponent<RectTransform>().DOMove(Vector3.left * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
-        dailyPanel.GetComponent<RectTransform>().DOMove(Vector3.right * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        homePanel.GetComponent<RectTransform>()
+            .DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
+        shopPanel.GetComponent<RectTransform>()
+            .DOMove(Vector3.left * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        dailyPanel.GetComponent<RectTransform>()
+            .DOMove(Vector3.right * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
         MenuBarBtn.instance.SelectHome();
     }
     public void Shop()
     {
-        shopPanel.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
-        homePanel.GetComponent<RectTransform>().DOMove(Vector3.right * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
-        dailyPanel.GetComponent<RectTransform>().DOMove(Vector3.right * 20000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        shopPanel.GetComponent<RectTransform>()
+            .DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
+        homePanel.GetComponent<RectTransform>()
+            .DOMove(Vector3.right * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        dailyPanel.GetComponent<RectTransform>()
+            .DOMove(Vector3.right * 20000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
         MenuBarBtn.instance.SelectShop();
     }
     public void Daily()
     {
         Calendar cal = GameObject.Find("Calendar").GetComponent<Calendar>();
-        dailyPanel.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
-        homePanel.GetComponent<RectTransform>().DOMove(Vector3.left * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
-        shopPanel.GetComponent<RectTransform>().DOMove(Vector3.left * 20000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        dailyPanel.GetComponent<RectTransform>()
+            .DOMove(canvas.GetComponent<RectTransform>().position, 0.25f);
+        homePanel.GetComponent<RectTransform>()
+            .DOMove(Vector3.left * 10000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
+        shopPanel.GetComponent<RectTransform>()
+            .DOMove(Vector3.left * 20000 + new Vector3(0, canvas.GetComponent<RectTransform>().position.y, 0), 0.25f);
         MenuBarBtn.instance.SelectDaily();
     }
     public void SaveSetting()
@@ -289,22 +306,30 @@ public class MenuManager : MonoBehaviour
     public void SettingClick()
     {
         settingsPanel.SetActive(true);
-        settingsPanel_Child.GetComponent<RectTransform>().DOMove(canvas.GetComponent<RectTransform>().position, 0.25f).OnComplete(() => { isSetting = true; });
+        settingsPanel_Child.GetComponent<RectTransform>()
+            .DOMove(canvas.GetComponent<RectTransform>().position, 0.25f)
+            .OnComplete(() => { isSetting = true; });
     }
     public void CloseSetting()
     {
-        settingsPanel_Child.GetComponent<RectTransform>().DOMove(Vector3.up * 10000 + canvas.GetComponent<RectTransform>().position, 0.5f).OnComplete(() => { settingsPanel.SetActive(false); isSetting = false; });
+        settingsPanel_Child.GetComponent<RectTransform>()
+            .DOMove(Vector3.up * 10000 + canvas.GetComponent<RectTransform>().position, 0.3f)
+            .OnComplete(() => { 
+            settingsPanel.SetActive(false); 
+            isSetting = false; 
+        });
     }
     public void BtnLeftClick()
     {
         switch(selectedLevel){
             case 4:
                 selectedLevel = 3;
-                btnLeft.interactable = false;
                 break;
             case 5:
                 selectedLevel = 4;
-                btnRight.interactable = true;
+                break;
+            case 3:
+                selectedLevel = 5;
                 break;
             default: break;
         }
@@ -314,11 +339,12 @@ public class MenuManager : MonoBehaviour
         switch(selectedLevel){
             case 3:
                 selectedLevel = 4;
-                btnLeft.interactable = true;
                 break;
             case 4:
                 selectedLevel = 5;
-                btnRight.interactable = false;
+                break;
+            case 5:
+                selectedLevel = 3;
                 break;
             default: break;
         }
@@ -372,7 +398,6 @@ public class MenuManager : MonoBehaviour
     public void PackSale()
     {
 
-
         UnityStringEvent e = new UnityStringEvent();
         e.AddListener((result) =>
         {
@@ -384,13 +409,15 @@ public class MenuManager : MonoBehaviour
 
             StartCoroutine(MoveMoney(10, GameObject.Find("Pack4").GetComponent<RectTransform>()));
             StartCoroutine(MoveHint(3, GameObject.Find("Pack4").GetComponent<RectTransform>()));
+            if (playerData.firstPurchased)
+            {
+                GameObject.Find("Pack4").GetComponent<Button>().interactable = false;
+                GameObject.Find("Pack4 Text").GetComponent<Text>().text = "Purchased";
+            }
         });
         ACEPlay.Bridge.BridgeController.instance.PurchaseProduct("packSale", e);
-        if (playerData.firstPurchased)
-        {
-            GameObject.Find("Pack4").GetComponent<Button>().interactable = false;
-            GameObject.Find("Pack4 Text").GetComponent<Text>().text = "Purchased";
-        }
+
+
     }
 
     public IEnumerator MoveHint(int count, RectTransform pack)
@@ -447,7 +474,15 @@ public class MenuManager : MonoBehaviour
     }
     public void MoreGame()
     {
+        moregamePanel.SetActive(true);
+    }
+    public void MoregameButton()
+    {
         ACEPlay.Bridge.BridgeController.instance.Moregames();
+    }
+    public void CloseMoreGame()
+    {
+        moregamePanel.SetActive(false);
     }
     public void RestorePurchase()
     {
@@ -456,5 +491,9 @@ public class MenuManager : MonoBehaviour
     public void Rate()
     {
         ACEPlay.Bridge.BridgeController.instance.RateGame();
+    }
+    public void YoutubeBtn()
+    {
+        Application.OpenURL("https://www.youtube.com/");
     }
 }

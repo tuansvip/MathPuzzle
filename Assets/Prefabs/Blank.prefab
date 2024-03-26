@@ -119,7 +119,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0016546547, y: -0.0002812147}
+  m_Offset: {x: 0.0018206835, y: -0.0002812147}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -130,7 +130,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.996829, y: 1.0003622}
+  m_Size: {x: 0.9690261, y: 0.9690839}
   m_EdgeRadius: 0
 --- !u!114 &-1468773785582139351
 MonoBehaviour:
@@ -152,6 +152,7 @@ MonoBehaviour:
   isOnAnswer: 0
   isSelected: 0
   isFilled: 0
+  answer: {fileID: 0}
 --- !u!1 &1729931234429636970
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,7 +188,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 0.034000006, y: 0.033999998}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &582710090816024724
 CanvasRenderer:
@@ -210,14 +211,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.909804, g: 0.90196085, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 47b8021a5c514c6408f90032013a9c76, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 33cb441495c17dc4a9d3e7c83a9f8bd4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

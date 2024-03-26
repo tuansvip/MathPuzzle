@@ -177,8 +177,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4285271828
+  m_fontColor: {r: 0.078431375, g: 0.058823533, b: 0.42352945, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -358,7 +358,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.00015258789, y: 0.0013427734}
+  m_Offset: {x: 0.0018206835, y: -0.0002812147}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -369,7 +369,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.0022583, y: 1.0009766}
+  m_Size: {x: 0.9690261, y: 0.9690839}
   m_EdgeRadius: 0
 --- !u!114 &5395491914127100692
 MonoBehaviour:
@@ -385,6 +385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   value: 4
   textValue: {fileID: 5093391464273779270}
+  bg: {fileID: 4453253379355195089}
 --- !u!114 &-2334205078258296239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,10 +402,13 @@ MonoBehaviour:
   isOnBlank: 0
   isOnOtherAns: 0
   isCorrect: 0
+  isHinting: 0
   startPosition: {x: 0, y: 0, z: 0}
+  startScale: {x: 0, y: 0, z: 0}
   targetPosition: {x: 0, y: 0, z: 0}
   bgColor: {r: 1, g: 1, b: 1, a: 1}
   wrongColor: {r: 1, g: 0, b: 0, a: 1}
+  endColor: {r: 0.0627451, g: 0.7294118, b: 1, a: 1}
   blankX: 0
   blankY: 0
   background: {fileID: 4453253379355195089}
@@ -470,7 +474,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 0.034000006, y: 0.034000006}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &727501443370903272
 CanvasRenderer:
@@ -493,14 +497,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.58431375, g: 0.7568628, b: 0.9921569, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 64409a37deb03554b884d26b7b40d3e8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c361be2a6964a584d858a610fde0d1f8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
