@@ -573,7 +573,6 @@ public class GameManager : MonoBehaviour
         UnityEvent eReward = new UnityEvent();
         eReward.AddListener(() =>
         {
-            // luồng game sau khi tắt quảng cáo ( tặng thưởng cho user )
             DOTween.KillAll();
             DOTween.Clear();
             SFXManager.instance.PlayClick();

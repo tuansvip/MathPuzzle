@@ -48,6 +48,7 @@ public class Blank : MonoBehaviour
         }
         else
         {
+            if (GameManager.instance.isPause) return;
             if (!isOnAnswer)
             {
                 SFXManager.instance.PlayPaper();

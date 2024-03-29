@@ -74,6 +74,7 @@ public class Answer : MonoBehaviour
     }
     private void OnMouseUp()
     {
+        if (GameManager.instance.isPause) return;
         transform.position = transform.position + Vector3.back * -5;
         if (!isOnOtherAns && isOnBlank)
         {
