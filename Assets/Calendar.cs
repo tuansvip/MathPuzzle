@@ -36,6 +36,7 @@ public class Calendar : MonoBehaviour
                 passedCounter++;                
                 dayBtn.GetComponent<Button>().interactable = false;
                 dayBtn.GetComponent<Image>().color = passedColor;
+                dayBtn.transform.GetChild(2).gameObject.SetActive(MenuManager.instance.playerData.daily[i - dayOffset] ? true : false);
                 dayBtn.transform.GetChild(1).gameObject.SetActive(false);
                 
             }
@@ -45,7 +46,14 @@ public class Calendar : MonoBehaviour
                 dayBtn.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = uninteracColor;
             }
         }
-
+        for (int i = dayOffset + DateTime.Now.Day; i >= dayOffset + 1 ; i--)
+        {
+            if (!MenuManager.instance.playerData.daily[i - dayOffset])
+            {
+                SelectDay(i);
+                break;
+            }
+        }
         for (int i = dayOffset + monthDays + 1; i <= 37; i++)
         {
             GameObject.Find("Slot " + i).SetActive(false);
@@ -109,8 +117,9 @@ public class Calendar : MonoBehaviour
         for (int i = dayOffset + 1; i <= dayOffset + monthDays; i++)
         {
             GameObject dayBtn = GameObject.Find("Slot " + i);
-            dayBtn.GetComponent<Image>().color = MenuManager.instance.playerData.daily[i - dayOffset]? passedColor : normalColor;
-           dayBtn.transform.GetComponentInChildren<TextMeshProUGUI>().color =  textColor;
+            dayBtn.GetComponent<Image>().color = MenuManager.instance.playerData.daily[i - dayOffset] ? passedColor : normalColor;
+
+            dayBtn.transform.GetComponentInChildren<TextMeshProUGUI>().color = i > dayOffset + DateTime.Now.Day ? uninteracColor : textColor ;
         }
         GameObject.Find("Slot " + day).GetComponent<Image>().color = selectedColor;
         GameObject.Find("Slot " + day).transform.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;

@@ -54,12 +54,12 @@ public class GenerateMath : MonoBehaviour
                 {
                     size = 10;
                     maxHide = 2;
-                    maxRange = 70;
+                    maxRange = 50;
                 }
                 else
                 {
                     size = 10;
-                    maxRange = 200;
+                    maxRange = 50;
                     maxHide = 2;
                 }
                 break;
@@ -67,14 +67,14 @@ public class GenerateMath : MonoBehaviour
                 if (PlayerPrefs.GetInt("NormalCount") < 11)
                 {
                     size = 13;
-                    maxRange = 70;
+                    maxRange = 50;
                     maxHide = 3;
 
                 }
                 else
                 {
                     size = 13;
-                    maxRange = 500;
+                    maxRange = 50;
                     maxHide = 3;
                 }
                 break;
@@ -82,13 +82,13 @@ public class GenerateMath : MonoBehaviour
                 if (PlayerPrefs.GetInt("HardCount") < 11)
                 {
                     size = 13;
-                    maxRange = 70;
+                    maxRange = 50;
                     maxHide = 3;
                 }
                 else
                 {
                     size = 13;
-                    maxRange = 500;
+                    maxRange = 50;
                     maxHide = 3;
                 }
                 break;
@@ -100,7 +100,7 @@ public class GenerateMath : MonoBehaviour
                             if (GameManager.instance.playerData.currentLevel < 50)
                             {
                                 size = 10;
-                                maxRange = 20 + GameManager.instance.playerData.currentLevel;
+                                maxRange = 50;
                                 if (maxRange > 100) maxRange = 100;
                                 maxValue = 100;
                                 maxHide = 2;
@@ -109,7 +109,7 @@ public class GenerateMath : MonoBehaviour
                             else
                             {
                                 size = 10;
-                                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                                maxRange = 50;
                                 if (maxRange > 500) maxRange = 500;
                                 maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
                                 maxHide = 2;
@@ -119,7 +119,7 @@ public class GenerateMath : MonoBehaviour
                             if (GameManager.instance.playerData.currentLevel < 50)
                             {
                                 size = 10;
-                                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                                maxRange = 50;
                                 maxValue = 100;
                                 if (maxRange > 100) maxRange = 100;
                                 maxHide = 3;
@@ -127,7 +127,7 @@ public class GenerateMath : MonoBehaviour
                             else
                             {
                                 size = 13;
-                                maxRange = 20 + GameManager.instance.playerData.currentLevel * 2;
+                                maxRange = 50;
                                 maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
                                 if (maxRange > 500) maxRange = 500;
                                 maxHide = 3;
@@ -137,7 +137,7 @@ public class GenerateMath : MonoBehaviour
                             if (GameManager.instance.playerData.currentLevel < 50)
                             {
                                 size = 10;
-                                maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
+                                maxRange = 50;
                                 maxValue = 75 + GameManager.instance.playerData.currentLevel * 2;
                                 if (maxRange > 100) maxRange = 100;
                                 maxHide = 3;
@@ -145,7 +145,7 @@ public class GenerateMath : MonoBehaviour
                             else
                             {
                                 size = 13;
-                                maxRange = 30 + GameManager.instance.playerData.currentLevel * 2;
+                                maxRange = 50;
                                 maxValue = 200 + GameManager.instance.playerData.currentLevel * 2;
                                 if (maxRange > 500) maxRange = 500;
                                 maxHide = 3;
@@ -157,7 +157,7 @@ public class GenerateMath : MonoBehaviour
                 break;
             case PlayerData.Challenge.Daily:
                 size = 13;
-                maxRange = 500;
+                maxRange = 50;
                 maxHide = 3;
 
                 break;
@@ -983,14 +983,14 @@ public class GenerateMath : MonoBehaviour
             {
                 gridModel[posX[1], posY[1]] = RanOp();
                 values[posX[0], posY[0]] = Random.Range(2, maxRange);
-                values[posX[2], posY[2]] = Random.Range(2, maxRange);
+                values[posX[2], posY[2]] = Random.Range(2, values[posX[0], posY[0]]);
                 switch (gridModel[posX[1], posY[1]])
                 {
                     case "+":
                         values[posX[4], posY[4]] = (values[posX[0], posY[0]] + values[posX[2], posY[2]]);
                         break;
                     case "-":
-                        if ((values[posX[0], posY[0]] - values[posX[2], posY[2]]) < 0) continue;
+                        if ((values[posX[0], posY[0]] - values[posX[2], posY[2]]) <= 0) continue;
                         values[posX[4], posY[4]] = (values[posX[0], posY[0]] - values[posX[2], posY[2]]);
                         break;
                     case "*":
@@ -999,7 +999,7 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = (values[posX[0], posY[0]] * values[posX[2], posY[2]]);
                         break;
                     case "/":
-                        if (values[posX[0], posY[0]] == 1 || values[posX[2], posY[2]] == 1) continue;
+                        if (values[posX[0], posY[0]] == 1 || values[posX[2], posY[2]] == 1 || values[posX[2], posY[2]] == values[posX[0], posY[0]]) continue;
                         if (values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0 && values[posX[2], posY[2]] != 0)
                         {
                             values[posX[4], posY[4]] = (values[posX[0], posY[0]] + values[posX[2], posY[2]]);
@@ -1051,17 +1051,16 @@ public class GenerateMath : MonoBehaviour
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] + values[posX[2], posY[2]];
                         break;
                     case "*":
-                        if (values[posX[4], posY[4]] == 1 || IsPrime(values[posX[4], posY[4]])) continue;
-                        do
-                        {
-                            values[posX[2], posY[2]] = Random.Range(2, maxRange);
-                        } while (values[posX[4], posY[4]] % values[posX[2], posY[2]] != 0);
+
+                            values[posX[2], posY[2]] = Random.Range(2, values[posX[4], posY[4]]);
+                        if (values[posX[4], posY[4]] == 1 || IsPrime(values[posX[4], posY[4]])|| values[posX[4], posY[4]] % values[posX[2], posY[2]] != 0) continue;
+
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] / values[posX[2], posY[2]];
                         break;
                     case "/":
-                        values[posX[2], posY[2]] = Random.Range(2, 6);
+                        values[posX[2], posY[2]] = Random.Range(2, 11);
 
-                        if (values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue) continue;
+                        if (values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue || values[posX[4], posY[4]] == 1) continue;
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] * values[posX[2], posY[2]];
                         break;
                 }
@@ -1105,7 +1104,7 @@ public class GenerateMath : MonoBehaviour
                 switch (gridModel[posX[1], posY[1]])
                 {
                     case "+":
-                        gridModel[posX[4], posY[4]] = Random.Range(2, maxRange).ToString();
+                        gridModel[posX[4], posY[4]] = Random.Range(2, maxValue).ToString();
                         if ((int.Parse(gridModel[posX[4], posY[4]]) - int.Parse(gridModel[posX[2], posY[2]])) < 0) continue;
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) - int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
@@ -1117,13 +1116,13 @@ public class GenerateMath : MonoBehaviour
                         if (int.Parse(gridModel[posX[2], posY[2]]) == 1 || IsPrime(int.Parse(gridModel[posX[2], posY[2]]))) continue;
                         do
                         {
-                            gridModel[posX[4], posY[4]] = Random.Range(2, maxRange).ToString();
+                            gridModel[posX[4], posY[4]] = Random.Range(2, maxValue).ToString();
                         } while (int.Parse(gridModel[posX[4], posY[4]]) % int.Parse(gridModel[posX[2], posY[2]]) != 0 || int.Parse(gridModel[posX[4], posY[4]]) == 1);
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) / int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
                     case "/":
                         gridModel[posX[4], posY[4]] = Random.Range(2, 10).ToString();
-                        if (int.Parse(gridModel[posX[4], posY[4]]) * int.Parse(gridModel[posX[2], posY[2]]) > maxValue) continue;
+                        if (int.Parse(gridModel[posX[4], posY[4]]) * int.Parse(gridModel[posX[2], posY[2]]) > maxValue || int.Parse(gridModel[posX[2], posY[2]]) == 1) continue;
                         gridModel[posX[0], posY[0]] = (int.Parse(gridModel[posX[4], posY[4]]) * int.Parse(gridModel[posX[2], posY[2]])).ToString();
                         break;
                 }
@@ -1155,13 +1154,14 @@ public class GenerateMath : MonoBehaviour
             } while (!isdone);
         }
         else
-        if (gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] == "empty")
+        if (gridModel[posX[0], posY[0]] != "empty" && gridModel[posX[2], posY[2]] == "empty" && gridModel[posX[4], posY[4]] == "empty" )
         {
             gridModel[posX[3], posY[3]] = "=";
             bool isdone = false;
             do
             {
                 gridModel[posX[1], posY[1]] = RanOp();
+                
                 switch (gridModel[posX[1], posY[1]])
                 {
                     case "+":
@@ -1169,21 +1169,18 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] + values[posX[2], posY[2]];
                         break;
                     case "-":
-                        values[posX[2], posY[2]] = Random.Range(2, maxRange);
-                        if (values[posX[0], posY[0]] - values[posX[2], posY[2]] < 0) continue;
+                        values[posX[2], posY[2]] = Random.Range(2, values[posX[0], posY[0]]);
+                        if (values[posX[0], posY[0]] - values[posX[2], posY[2]] <= 0) continue;
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] - values[posX[2], posY[2]];
                         break;
                     case "*":
-                        values[posX[2], posY[2]] = Random.Range(2, 10);
+                        values[posX[2], posY[2]] = Random.Range(2, 11);
                         if (values[posX[0], posY[0]] * values[posX[2], posY[2]] > maxValue) continue;
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] * values[posX[2], posY[2]];
                         break;
                     case "/":
-                        if (values[posX[0], posY[0]] == 1 || IsPrime(values[posX[0], posY[0]])) continue;
-                        do
-                        {
-                            values[posX[2], posY[2]] = Random.Range(2, maxRange);
-                        } while (values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0);
+                        values[posX[2], posY[2]] = Random.Range(2, values[posX[0], posY[0]]);
+                        if (values[posX[0], posY[0]] == 1 || IsPrime(values[posX[0], posY[0]]) || values[posX[0], posY[0]] % values[posX[2], posY[2]] != 0) continue;
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] / values[posX[2], posY[2]];
                         break;
                 }
@@ -1246,7 +1243,7 @@ public class GenerateMath : MonoBehaviour
                         }
                         break;
                     case "/":
-                        if (values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue) continue;
+                        if (values[posX[4], posY[4]] * values[posX[2], posY[2]] > maxValue || values[posX[4], posY[4]] == 1 || values[posX[2], posY[2]] == 1) continue;
                         values[posX[0], posY[0]] = values[posX[4], posY[4]] * values[posX[2], posY[2]];
                         break;
                 }
@@ -1445,7 +1442,7 @@ public class GenerateMath : MonoBehaviour
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] + values[posX[2], posY[2]];
                         break;
                     case "-":
-                        if (values[posX[0], posY[0]] - values[posX[2], posY[2]] < 0) continue;
+                        if (values[posX[0], posY[0]] - values[posX[2], posY[2]] <= 0) continue;
                         values[posX[4], posY[4]] = values[posX[0], posY[0]] - values[posX[2], posY[2]];
                         break;
                     case "*":

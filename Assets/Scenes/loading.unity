@@ -430,7 +430,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1247.0098, y: 2215.4321}
+  m_SizeDelta: {x: 2745.166, y: 2745.166}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &564506885
 MonoBehaviour:
@@ -452,7 +452,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9b7e9d0d115eb174c9b49e9c9f01f1ad, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d9b31ebd60af68c469212c1a9f513e74, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1900,7 +1900,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -673}
+  m_AnchoredPosition: {x: 0, y: -535}
   m_SizeDelta: {x: -400, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1903320703
@@ -3535,6 +3535,7 @@ MonoBehaviour:
   op: 4
   bg: {fileID: 4469109977756541852}
   textValue: {fileID: 5618888332801997012}
+  index: 0
 --- !u!114 &3676573374722095055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3550,6 +3551,7 @@ MonoBehaviour:
   op: 0
   bg: {fileID: 4469109978339678545}
   textValue: {fileID: 5618888333695238681}
+  index: 0
 --- !u!114 &3676573374920857733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3565,6 +3567,7 @@ MonoBehaviour:
   op: 1
   bg: {fileID: 4469109978140915227}
   textValue: {fileID: 5618888333491236179}
+  index: 0
 --- !u!114 &3676573375653794653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3580,6 +3583,7 @@ MonoBehaviour:
   op: 4
   bg: {fileID: 4469109978748157379}
   textValue: {fileID: 5618888333821552267}
+  index: 0
 --- !u!224 &4156619516855716996
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4505,6 +4509,7 @@ MonoBehaviour:
   value: 7
   textValue: {fileID: 5093391464864876013}
   bg: {fileID: 4453253378831198586}
+  index: 0
 --- !u!114 &5395491914202748834
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4520,6 +4525,7 @@ MonoBehaviour:
   value: 1
   textValue: {fileID: 5093391464349452016}
   bg: {fileID: 2557030745520423478}
+  index: 0
 --- !u!114 &5395491914204470474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4535,6 +4541,7 @@ MonoBehaviour:
   value: 4
   textValue: {fileID: 5093391464350879128}
   bg: {fileID: 4453253379433013519}
+  index: 0
 --- !u!114 &5395491914721952665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4550,6 +4557,7 @@ MonoBehaviour:
   value: 5
   textValue: {fileID: 5093391465942143691}
   bg: {fileID: 2557030744967730701}
+  index: 0
 --- !u!114 &5395491914761350694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4565,6 +4573,7 @@ MonoBehaviour:
   value: 3
   textValue: {fileID: 5093391465981542260}
   bg: {fileID: 2557030744994413490}
+  index: 0
 --- !u!224 &5408696866144504578
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6268,6 +6277,7 @@ MonoBehaviour:
   bg: {fileID: 7477446549272997813}
   x: 0
   y: 0
+  index: 0
   isOnAnswer: 0
   isSelected: 0
   isFilled: 0
@@ -6289,6 +6299,7 @@ MonoBehaviour:
   bg: {fileID: 7477446549021688274}
   x: 0
   y: 0
+  index: 0
   isOnAnswer: 0
   isSelected: 0
   isFilled: 0
